@@ -1,48 +1,5 @@
 #!/usr/bin/python26
 
-#  Copyright (c) 2011, The Arizona Board of Regents on behalf of
-#  The University of Arizona
-#
-#  All rights reserved.
-#
-#  Developed by: iPlant Collaborative as a collaboration between
-#  participants at BIO5 at The University of Arizona (the primary hosting
-#  institution), Cold Spring Harbor Laboratory, The University of Texas at
-#  Austin, and individual contributors. Find out more at
-#  http://www.iplantcollaborative.org/.
-#
-#  Redistribution and use in source and binary forms, with or without
-#  modification, are permitted provided that the following conditions are
-#  met:
-#
-# * Redistributions of source code must retain the above copyright
-#   notice, this list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright
-#   notice, this list of conditions and the following disclaimer in the
-#   documentation and/or other materials provided with the distribution.
-# * Neither the name of the iPlant Collaborative, BIO5, The University
-#   of Arizona, Cold Spring Harbor Laboratory, The University of Texas at
-#   Austin, nor the names of other contributors may be used to endorse or
-#   promote products derived from this software without specific prior
-#   written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
-# IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
-# TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-# PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-# HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
-# TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-# PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-# LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
-#
-# Author: Sangeeta Kuchimanchi (sangeeta@iplantcollaborative.org)
-# Date: 10/11/2012 
-#
-
 import os
 import re
 import subprocess
@@ -64,7 +21,7 @@ import logging
 import site
 import json
 
-CONFIG_PATH = '/scripts'
+CONFIG_PATH = '/scripts/public/v1.2'
 
 sys.path.append(CONFIG_PATH)
 from db_queries import *
@@ -91,7 +48,7 @@ def application(environ, start_response):
       created_date = getDateTime()
       version = req.params.get('version')   
 
-      all_data = "{" + str(uuid) + "," + str(service_name) + "," + str(category_name) + "," + str(event_name) + "," + str(username) + "," + str(proxy_username) + "," + str(event_data) + "," + str(request_ipaddress) + "," + str(created_date) + "," + str(version) + "}"
+      all_data = "{" + str(uuid) + "," + str(service_name) + "," + str(category_name) + "," + str(event_name) + "," + str(username) + "," + str(proxy_username) + "," + str(event_data) + "," + str(request_ipaddress) + "," + str(created_date) + "," + str(version) + "," + str(track_history) + "," + str(track_history_code) + "}"
      
       infoMsg = "Received provenance request: " + all_data
       LogInfo(infoMsg)
@@ -141,6 +98,7 @@ def processRequest(uuid,service_name,category_name,event_name,username,proxy_use
         if len(check_results) == 1:
 
            if proxy_username is None and event_data is None:
+             print "In proxy_username and event_data is none"
              insert_status = cursor.execute(QUERY_NO_PROXY_DATA % (uuid,event_id,category_id,service_id,username,request_ipaddress,created_date))
              if str(insert_status) == "1":
                 infoMsg = "Success: " + all_data
@@ -154,6 +112,7 @@ def processRequest(uuid,service_name,category_name,event_name,username,proxy_use
           
            elif proxy_username != None:
 
+             print "In proxy_username"
              insert_status = cursor.execute(QUERY_PROXY % (uuid,event_id,category_id,service_id,username,proxy_username,request_ipaddress,created_date))
 
              if str(insert_status) == "1":
@@ -168,6 +127,8 @@ def processRequest(uuid,service_name,category_name,event_name,username,proxy_use
 
            elif event_data != None:
             
+             print "In event_data"
+             print event_data
              insert_status = cursor.execute(QUERY_DATA % (uuid,event_id,category_id,service_id,username,event_data,request_ipaddress,created_date))
  
              if str(insert_status) == "1":
@@ -182,6 +143,7 @@ def processRequest(uuid,service_name,category_name,event_name,username,proxy_use
 
            else:
 
+             print "In all"
              insert_status = cursor.execute(QUERY_ALL % (uuid,event_id,category_id,service_id,username,proxy_username,event_data,request_ipaddress,created_date))
  
              if str(insert_status) == "1":
@@ -240,6 +202,8 @@ def processRequest(uuid,service_name,category_name,event_name,username,proxy_use
            webstatus = '200 OK'
            if track_history == "1" and track_history_code == None:
                data = json.dumps({'result':{'Status':'Success','Details':'Provenance recorded','History code':history_code}}, indent=4)   
+           elif track_history == None and track_history_code != None:
+               data = json.dumps({'result':{'Status':'Success','Details':'Provenance recorded','Warning':'Track history flag is not set but history code was sent'}}, indent=4)
            else:
                data = json.dumps({'result':{'Status':'Success','Details':'Provenance recorded'}}, indent=4)
    
