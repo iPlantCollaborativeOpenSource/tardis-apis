@@ -215,8 +215,6 @@ CREATE TABLE `history_requests` (
   `category_id` int(11) NOT NULL,
   `event_id` int(11) NOT NULL,
   `username` varchar(20) character set latin1 NOT NULL,
-  `proxy_username` varchar(30),
-  `event_data` varchar(65),
   `created_date` int(11) NOT NULL,
   `parent` varchar(5) character set latin1 NOT NULL default 'N',
   `processed` varchar(5) character set latin1 NOT NULL default 'N',
