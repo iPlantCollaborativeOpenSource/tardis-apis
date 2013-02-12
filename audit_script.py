@@ -107,15 +107,15 @@ def insertAudit():
            update_status = cursor.execute(AUDIT_UPDATE_STATUS % ('Y',id))
            if update_status == 1:
              infoMsg = "Audit Success: " + all_data
-             LogInfo(infoMsg)
+             log_info(infoMsg)
            else:
              errMsg = "Audit Update: AUDIT_UPDATE_STATUS query failed" + all_data
-             LogErrors(errMsg)
+             log_errors(errMsg)
              failedInsertsAudit(all_data)
              notifySupport(errMsg,scriptname)
          else:
            errMsg = "Audit: QUERY_NO_PROXY_DATA query failed" + all_data
-           LogErrors(errMsg)
+           log_errors(errMsg)
            failedInsertsAudit(all_data)
            notifySupport(errMsg,scriptname)
 
@@ -127,15 +127,15 @@ def insertAudit():
             update_status = cursor.execute(AUDIT_UPDATE_STATUS % ('Y',id))
             if update_status == 1:
               infoMsg = "Audit Success: " + all_data
-              LogInfo(infoMsg)
+              log_info(infoMsg)
             else:
               errMsg = "Audit Update: AUDIT_UPDATE_STATUS query failed" + all_data
-              LogErrors(errMsg)
+              log_errors(errMsg)
               failedInsertsAudit(all_data)
               notifySupport(errMsg,scriptname)
           else:
             errMsg = "Audit: QUERY_PROXY query failed" + all_data
-            LogErrors(errMsg)
+            log_errors(errMsg)
             failedInsertsAudit(all_data)
             notifySupport(errMsg,scriptname)
 
@@ -147,16 +147,16 @@ def insertAudit():
             update_status = cursor.execute(AUDIT_UPDATE_STATUS % ('Y',id))
             if update_status == 1:
               infoMsg = "Audit Success: " + all_data
-              LogInfo(infoMsg)
+              log_info(infoMsg)
             else:
               errMsg = "Audit Update: AUDIT_UPDATE_STATUS query failed" + all_data
-              LogErrors(errMsg)
+              log_errors(errMsg)
               failedInsertsAudit(all_data)
               notifySupport(errMsg,scriptname)
 
           else:
             errMsg = "Audit: QUERY_DATA query failed" + all_data
-            LogErrors(errMsg)
+            log_errors(errMsg)
             failedInsertsAudit(all_data)
             notifySupport(errMsg,scriptname)
         else:
@@ -167,15 +167,15 @@ def insertAudit():
             update_status = cursor.execute(AUDIT_UPDATE_STATUS % ('Y',id))
             if update_status == 1:
               infoMsg = "Audit Success: " + all_data
-              LogInfo(infoMsg)
+              log_info(infoMsg)
             else:
               errMsg = "Audit Update: AUDIT_UPDATE_STATUS query failed" + all_data
-              LogErrors(errMsg)
+              log_errors(errMsg)
               failedInsertsAudit(all_data)
               notifySupport(errMsg,scriptname)
           else:
             errMsg = "Audit: QUERY_ALL query failed" + all_data
-            LogErrors(errMsg)
+            log_errors(errMsg)
             failedInsertsAudit(all_data)   
             notifySupport(errMsg,scriptname)
 
@@ -184,7 +184,7 @@ def insertAudit():
   except Exception, e:
 
     errMsg = "AUDIT EXCEPTION: " + str(e) + ": " + all_data
-    LogException(errMsg)
+    log_exception(errMsg)
     failedInsertsAudit(all_data) 
     notifySupport(errMsg,scriptname)
     cursor.close()

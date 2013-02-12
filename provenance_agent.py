@@ -94,11 +94,11 @@ def application(environ, start_response):
       all_data = "{" + str(uuid) + "," + str(service_name) + "," + str(category_name) + "," + str(event_name) + "," + str(username) + "," + str(proxy_username) + "," + str(event_data) + "," + str(request_ipaddress) + "," + str(created_date) + "," + str(version) + "}"
      
       infoMsg = "Received provenance request: " + all_data
-      LogInfo(infoMsg)
+      log_info(infoMsg)
 
       validated, details = checkValidation(uuid,service_name,category_name,event_name,username,proxy_username,version) 
       infoMsg = "Validation:" + str(validated) + " Details: " + str(details)
-      LogInfo(infoMsg)
+      log_info(infoMsg)
       if validated == 1:
          json_data, webstatus = processRequest(uuid,service_name,category_name,event_name,username,proxy_username,event_data,request_ipaddress,created_date,version,track_history,track_history_code)
       else:
@@ -109,7 +109,7 @@ def application(environ, start_response):
       json_data = json.dumps({'result':{'Status':'Failed','Details':'Incorrect HTTP METHOD'}}, indent=4)      
    
    infoMsg = "Request Processed: " + str(webstatus) + " Details: " + str(json_data)
-   LogInfo(infoMsg)
+   log_info(infoMsg)
       
    response_headers = [('Content-type', 'application/json')]
    start_response(webstatus, response_headers)
@@ -144,10 +144,10 @@ def processRequest(uuid,service_name,category_name,event_name,username,proxy_use
              insert_status = cursor.execute(QUERY_NO_PROXY_DATA % (uuid,event_id,category_id,service_id,username,request_ipaddress,created_date))
              if str(insert_status) == "1":
                 infoMsg = "Success: " + all_data
-                LogInfo(infoMsg)
+                log_info(infoMsg)
              else:
                 errMsg = "QUERY_NO_PROXY_DATA query failed" + all_data
-                LogErrors(errMsg)
+                log_errors(errMsg)
                 audit_insert = cursor.execute(AUDIT_NO_PROXY_DATA % (uuid,event_id,category_id,service_id,username,request_ipaddress,created_date))
                 if audit_insert != 1:
                    failedInsertsAudit(all_data)
@@ -158,10 +158,10 @@ def processRequest(uuid,service_name,category_name,event_name,username,proxy_use
 
              if str(insert_status) == "1":
                  infoMsg = "Success: " + all_data
-                 LogInfo(infoMsg)
+                 log_info(infoMsg)
              else:
                  errMsg = "QUERY_PROXY query failed" + all_data
-                 LogErrors(errMsg)
+                 log_errors(errMsg)
                  audit_insert = cursor.execute(AUDIT_PROXY % (uuid,event_id,category_id,service_id,username,proxy_username,request_ipaddress,created_date))
                  if audit_insert != 1:
                    failedInsertsAudit(all_data)
@@ -172,10 +172,10 @@ def processRequest(uuid,service_name,category_name,event_name,username,proxy_use
  
              if str(insert_status) == "1":
                  infoMsg = "Success: " + all_data
-                 LogInfo(infoMsg)
+                 log_info(infoMsg)
              else:
                  errMsg = "QUERY_DATA query failed" + all_data
-                 LogErrors(errMsg)
+                 log_errors(errMsg)
                  audit_insert = cursor.execute(AUDIT_DATA % (uuid,event_id,category_id,service_id,username,event_data,request_ipaddress,created_date))
                  if audit_insert != 1:
                    failedInsertsAudit(all_data)
@@ -186,10 +186,10 @@ def processRequest(uuid,service_name,category_name,event_name,username,proxy_use
  
              if str(insert_status) == "1":
                  infoMsg = "Success: " + all_data
-                 LogInfo(infoMsg)
+                 log_info(infoMsg)
              else:
                  errMsg = "QUERY_ALL query failed" + all_data
-                 LogErrors(errMsg)
+                 log_errors(errMsg)
                  audit_insert = cursor.execute(AUDIT_ALL % (uuid,event_id,category_id,service_id,username,proxy_username,event_data,request_ipaddress,created_date))
                  if audit_insert != 1:
                    failedInsertsAudit(all_data)         
@@ -207,31 +207,31 @@ def processRequest(uuid,service_name,category_name,event_name,username,proxy_use
                    hist_status = cursor.execute(HIST_INSERT_QUERY % (track_history_code,uuid,event_id,category_id,service_id,username,created_date))
                    if str(hist_status) == "1":
                      infoMsg = "History request recorded:" + " " + str(track_history_code) + " " + all_data
-                     LogInfo(infoMsg)
+                     log_info(infoMsg)
                    else:
                      errMsg = "HIST_INSERT_QUERY failed" + history_data
-                     LogErrors(errMsg)
+                     log_errors(errMsg)
                      trackHistoryErrors(history_data)
                  else:
                    parent_query = "Y"
                    hist_status = cursor.execute(HIST_INSERT_QUERY_PARENT % (track_history_code,uuid,event_id,category_id,service_id,username,created_date,parent_query))
                    if str(hist_status) == "1":
                      infoMsg = "History request recorded:" + " " + str(track_history_code) + " " + all_data
-                     LogInfo(infoMsg)
+                     log_info(infoMsg)
                    else:
                      errMsg = "HIST_INSERT_QUERY_PARENT failed" + history_data
-                     LogErrors(errMsg)
+                     log_errors(errMsg)
                      trackHistoryErrors(history_data)
          
              else:
                  history_data = str(username) + ":" + str(uuid) + ":" + str(created_date)
                  history_code = getHistoryCode(history_data)
                  infoMsg = "History code generated: " + str(history_code) + " " + all_data
-                 LogInfo(infoMsg)
+                 log_info(infoMsg)
            else:
              if track_history_code != None:
                  errMsg = "Track History flag not set but history code was sent. Please check history tracking error logs." + " " + str(track_history_code)
-                 LogErrors(errMsg)
+                 log_errors(errMsg)
                  history_data = str(track_history_code) + "," + str(all_data)
                  trackHistoryErrors(history_data)
 
@@ -251,13 +251,13 @@ def processRequest(uuid,service_name,category_name,event_name,username,proxy_use
            data = json.dumps({'result':{'Status':'Failed','Details':'Provenance not recorded','Report':'More than one record found for given UUID. Support has been notified'}}, indent=4)
            errMsg = "Duplicate UUID enery found: " + all_data
            # notify_support
-           LogErrors(errMsg)
+           log_errors(errMsg)
            failedInsertsAudit(all_data)
            return (data,webstatus)
 
      except Exception, e:
         errMsg = "EXCEPTION: " + str(e) + ": " + all_data
-        LogException(errMsg)
+        log_exception(errMsg)
         audit_insert = cursor.execute(AUDIT_ALL % (uuid,event_id,category_id,service_id,username,proxy_username,event_data,request_ipaddress,created_date))
         if audit_insert != 1:
           failedInsertsAudit(all_data) 
