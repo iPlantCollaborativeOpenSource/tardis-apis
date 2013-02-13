@@ -286,26 +286,20 @@ def getDateTime():
 
 def getID(name, key, version):
 
-   conn = MySQLdb.connect (host = PROV_DB_HOST,user = PROV_DB_USERNAME,passwd = PROV_DB_PASSWORD,db = PROV_DB_NAME)
+   conn = MySQLdb.connect (host = PROV_DB_HOST, user = PROV_DB_USERNAME,
+                           passwd = PROV_DB_PASSWORD, db = PROV_DB_NAME)
    cursor = conn.cursor ()
 
    if key == "EVENT":
-
      cursor.execute(QUERY_EVENT_ID % (name))
      results = cursor.fetchone()
-    
    elif key == "SERVICE" and version == "Default":
-
      cursor.execute(QUERY_SERVICE_ID % (name))
      results = cursor.fetchone()
-   
    elif key == "SERVICE" and version != "Default":
-   
     cursor.execute(QUERY_SERVICE_VERSION_ID % (name, version))
     results = cursor.fetchone()
-   
    else:
-
      cursor.execute(QUERY_CATEGORY_ID % (name))
      results = cursor.fetchone()
 
@@ -317,6 +311,7 @@ def getID(name, key, version):
    else:
      cursor.close()
      return "EMPTY" 
+
 
 def validate(uuid, service_name, category_name, event_name, username, proxy_username,
              version):
