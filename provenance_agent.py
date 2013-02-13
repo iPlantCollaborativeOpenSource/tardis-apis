@@ -123,7 +123,7 @@ def application(environ, start_response):
    return (json_data)
          
   
-def processRequest(uuid, service_name, category_name, event_name, username,
+def process_request(uuid, service_name, category_name, event_name, username,
                    proxy_username, event_data, request_ipaddress, created_date,
                    version, track_history, track_history_code):
 
