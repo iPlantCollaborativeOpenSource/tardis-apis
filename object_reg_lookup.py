@@ -87,7 +87,7 @@ def application(environ, start_response):
      objname = req.params.get('object_name')
      objdesc = req.params.get('object_desc')
 
-     obj_data = "[" + str(objid) + "," + str(objname) + "," + str(objdesc) + "]" 
+     obj_data = "[" + str(objid) + "," + str(objname) + "," + str(objdesc) + "]"
 
      if objid != None:
        try:
@@ -107,11 +107,12 @@ def application(environ, start_response):
              data_string = json.dumps({'Status' : 'Failed', 'Details' : 'Error retrieving UUID'},indent=4)
              webstatus = '503 Service Unavailable'
            else:
-             cursor.execute(OBJECT_QUERY_UUID_INSERT % (uuid,objid,objname,objdesc))
+             cursor.execute(OBJECT_QUERY_UUID_INSERT % (uuid, objid, objname,
+                                                        objdesc))
              uid = str(uuid)
              infoMsg = "Object created: " + " " + uid
              log_info(infoMsg)
-             data_string = json.dumps({'UUID' : uid},indent=4)
+             data_string = json.dumps({'UUID' : uid}, indent=4)
              webstatus = '200 OK'
 
          else:
@@ -130,11 +131,12 @@ def application(environ, start_response):
          log_exception(errMsg)
          failedInsertsAudit(obj_data)
 
-         data_string = json.dumps({'Status' : 'Failed', 'Details' : 'MySQL Exception. Failed to retrieve data'}, indent=4)
+         data_string = json.dumps({'Status' : 'Failed',
+                                   'Details' : 'MySQL Exception. Failed to retrieve data'}, indent=4)
          webstatus = '500 Internal Server Error'
    
      else:
-       errMsg = "Null Exception: service_object_id cannot be null" +  " " + obj_data
+       errMsg = "Null Exception: service_object_id cannot be null " + obj_data
        log_exception(errMsg)
 
        data_string = json.dumps({'Status' : 'Failed','Details':'Null Exception. service_object_id cannot be null'}, indent=4)
