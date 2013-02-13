@@ -125,9 +125,9 @@ def processRequest(uuid, service_name, category_name, event_name, username,
    if version == None:
      version = "Default"
 
-   event_id = getID(event_name, "EVENT", version)
-   category_id = getID(category_name, "CATEGORY", version)
-   service_id = getID(service_name, "SERVICE", version)
+   event_id = get_id(event_name, "EVENT", version)
+   category_id = get_id(category_name, "CATEGORY", version)
+   service_id = get_id(service_name, "SERVICE", version)
                 
   
    if event_id != "EMPTY" and category_id != "EMPTY" and service_id != "EMPTY":
@@ -318,7 +318,7 @@ def getDateTime():
    return int(current_in_sec)
 
 
-def getID(name, key, version):
+def get_id(name, key, version):
 
    conn = MySQLdb.connect (host = PROV_DB_HOST, user = PROV_DB_USERNAME,
                            passwd = PROV_DB_PASSWORD, db = PROV_DB_NAME)
