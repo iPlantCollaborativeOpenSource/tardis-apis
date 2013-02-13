@@ -88,7 +88,7 @@ def application(environ, start_response):
       request_ipaddress = req.remote_addr
       track_history = req.params.get('track_history')
       track_history_code = req.params.get('track_history_code')
-      created_date = getDateTime()
+      created_date = get_date_time()
       version = req.params.get('version')   
 
       all_data = "{" + str(uuid) + "," + str(service_name) + "," + str(category_name) + "," + str(event_name) + "," + str(username) + "," + str(proxy_username) + "," + str(event_data) + "," + str(request_ipaddress) + "," + str(created_date) + "," + str(version) + "}"
@@ -133,8 +133,7 @@ def process_request(uuid, service_name, category_name, event_name, username,
    event_id = get_id(event_name, "EVENT", version)
    category_id = get_id(category_name, "CATEGORY", version)
    service_id = get_id(service_name, "SERVICE", version)
-                
-  
+
    if event_id != "EMPTY" and category_id != "EMPTY" and service_id != "EMPTY":
 
      all_data = "{" + str(uuid) + "," + str(service_name) + "," + str(category_name) + "," + str(event_name) + "," + str(username) + "," + str(proxy_username) + "," + str(event_data) + "," + str(request_ipaddress) + "," + str(created_date) + "}"
@@ -315,7 +314,7 @@ def process_request(uuid, service_name, category_name, event_name, username,
      return (data, webstatus)
 
 
-def getDateTime():
+def get_date_time():
 
    currenttime = datetime.datetime.now()
    current_in_sec = time.mktime(currenttime.timetuple())
