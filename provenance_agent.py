@@ -320,7 +320,8 @@ def getID(name, key, version):
 
 def validate(uuid, service_name, category_name, event_name, username, proxy_username,
              version):
-    
+   # TODO: determine if a regex defined as r'^[0-9]+$', etc is
+   # compiled or not... this could be improve in a number of ways
    if uuid != None and service_name != None and category_name != None and event_name != None and username != None:
     
       if re.match (r'^[0-9]+$',uuid) != None:
