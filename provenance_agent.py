@@ -96,7 +96,9 @@ def application(environ, start_response):
       infoMsg = "Received provenance request: " + all_data
       log_info(infoMsg)
 
-      validated, details = checkValidation(uuid,service_name,category_name,event_name,username,proxy_username,version) 
+      validated, details = validate(uuid, service_name, category_name,
+                                    event_name, username, proxy_username,
+                                    version)
       infoMsg = "Validation:" + str(validated) + " Details: " + str(details)
       log_info(infoMsg)
       if validated == 1:
@@ -316,7 +318,8 @@ def getID(name, key, version):
      cursor.close()
      return "EMPTY" 
 
-def checkValidation(uuid,service_name,category_name,event_name,username,proxy_username,version):
+def validate(uuid, service_name, category_name, event_name, username, proxy_username,
+             version):
     
    if uuid != None and service_name != None and category_name != None and event_name != None and username != None:
     
