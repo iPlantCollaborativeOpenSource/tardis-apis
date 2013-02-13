@@ -102,7 +102,12 @@ def application(environ, start_response):
       infoMsg = "Validation:" + str(validated) + " Details: " + str(details)
       log_info(infoMsg)
       if validated == 1:
-         json_data, webstatus = processRequest(uuid,service_name,category_name,event_name,username,proxy_username,event_data,request_ipaddress,created_date,version,track_history,track_history_code)
+         json_data, webstatus = process_request(uuid, service_name,
+                                                category_name, event_name,
+                                                username, proxy_username,
+                                                event_data, request_ipaddress,
+                                                created_date, version,
+                                                track_history,track_history_code)
       else:
          json_data = json.dumps({'result':{'Status':'Failed','Details':'Validation Failed', 'Report': details}}, indent=4)
          webstatus = '400 Bad Request'
