@@ -90,10 +90,9 @@ def application(environ, start_response):
      obj_data = "[" + str(objid) + "," + str(objname) + "," + str(objdesc) + "]" 
 
      if objid != None:
-
        try:
-
-         conn = MySQLdb.connect (host = PROV_DB_HOST,user = PROV_DB_USERNAME,passwd = PROV_DB_PASSWORD,db = PROV_DB_NAME)
+         conn = MySQLdb.connect (host=PROV_DB_HOST, user=PROV_DB_USERNAME,
+                                 passwd=PROV_DB_PASSWORD, db=PROV_DB_NAME)
          cursor = conn.cursor ()
          cursor.execute(OBJECT_QUERY_UUID_LOOKUP % (objid))
          results = cursor.fetchone()
