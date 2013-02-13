@@ -99,7 +99,7 @@ def application(environ, start_response):
          results = cursor.fetchone()
  
          if results == None: 
-           uuid = getUUID(obj_data)
+           uuid = get_uuid(obj_data)
 
            if uuid == None:       
              errMsg = "Objuuid is null: " + obj_data
@@ -151,13 +151,12 @@ def application(environ, start_response):
    start_response(webstatus,response_headers)
    return (data_string)
 
-def getUUID(obj_data):
+def get_uuid(obj_data):
 
    host = 'localhost'
    port = 7610
 
    try:
-
      socket = TSocket.TSocket(host, port)
      transport = TTransport.TFramedTransport(socket)
      protocol = TBinaryProtocol.TBinaryProtocol(transport)
@@ -172,16 +171,13 @@ def getUUID(obj_data):
      log_info(infoMsg)
  
      return id
-     
    except Exception, e:
-
      errMsg = "Snowflake Server exception: " + str(e) + " " + obj_data
      log_exception(errMsg)
      failedInsertsAudit(obj_data)
 
 
 def failedInsertsAudit(data):
-
   curr_time = datetime.datetime.now()
   insertfile = open(OBJECT_FAILED_INSERTS_FILE,"a")
   insertfile.write(str(curr_time) + " " + data + "\n")
