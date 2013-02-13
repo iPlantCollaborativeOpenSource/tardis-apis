@@ -118,7 +118,9 @@ def application(environ, start_response):
    return (json_data)
          
   
-def processRequest(uuid,service_name,category_name,event_name,username,proxy_username,event_data,request_ipaddress,created_date,version,track_history,track_history_code):
+def processRequest(uuid, service_name, category_name, event_name, username,
+                   proxy_username, event_data, request_ipaddress, created_date,
+                   version, track_history, track_history_code):
 
    if version == None:
      version = "Default"
@@ -131,10 +133,8 @@ def processRequest(uuid,service_name,category_name,event_name,username,proxy_use
    if event_id != "EMPTY" and category_id != "EMPTY" and service_id != "EMPTY":
 
      all_data = "{" + str(uuid) + "," + str(service_name) + "," + str(category_name) + "," + str(event_name) + "," + str(username) + "," + str(proxy_username) + "," + str(event_data) + "," + str(request_ipaddress) + "," + str(created_date) + "}"
-
        
      try:
-
         conn = MySQLdb.connect (host = PROV_DB_HOST,user = PROV_DB_USERNAME,passwd = PROV_DB_PASSWORD,db = PROV_DB_NAME)
         cursor = conn.cursor()
 
@@ -143,59 +143,85 @@ def processRequest(uuid,service_name,category_name,event_name,username,proxy_use
         if len(check_results) == 1:
 
            if proxy_username is None and event_data is None:
-             insert_status = cursor.execute(QUERY_NO_PROXY_DATA % (uuid,event_id,category_id,service_id,username,request_ipaddress,created_date))
+             insert_status = cursor.execute(QUERY_NO_PROXY_DATA % (uuid, event_id,
+                                            category_id, service_id, username, 
+                                            request_ipaddress, created_date))
              if str(insert_status) == "1":
                 infoMsg = "Success: " + all_data
                 log_info(infoMsg)
              else:
                 errMsg = "QUERY_NO_PROXY_DATA query failed" + all_data
                 log_errors(errMsg)
-                audit_insert = cursor.execute(AUDIT_NO_PROXY_DATA % (uuid,event_id,category_id,service_id,username,request_ipaddress,created_date))
+                audit_insert = cursor.execute(AUDIT_NO_PROXY_DATA
+                                              % (uuid, event_id, category_id,
+                                                 service_id, username,
+                                                 request_ipaddress,
+                                                 created_date))
                 if audit_insert != 1:
                    failedInsertsAudit(all_data)
           
            elif proxy_username != None:
-
-             insert_status = cursor.execute(QUERY_PROXY % (uuid,event_id,category_id,service_id,username,proxy_username,request_ipaddress,created_date))
-
+             insert_status = cursor.execute(QUERY_PROXY
+                                            % (uuid, event_id, category_id,
+                                               service_id, username,
+                                               proxy_username, request_ipaddress,
+                                               created_date))
              if str(insert_status) == "1":
                  infoMsg = "Success: " + all_data
                  log_info(infoMsg)
              else:
                  errMsg = "QUERY_PROXY query failed" + all_data
                  log_errors(errMsg)
-                 audit_insert = cursor.execute(AUDIT_PROXY % (uuid,event_id,category_id,service_id,username,proxy_username,request_ipaddress,created_date))
+                 audit_insert = cursor.execute(AUDIT_PROXY
+                                               % (uuid, event_id, category_id,
+                                                  service_id, username,
+                                                  proxy_username,
+                                                  request_ipaddress,
+                                                  created_date))
                  if audit_insert != 1:
                    failedInsertsAudit(all_data)
 
            elif event_data != None:
             
-             insert_status = cursor.execute(QUERY_DATA % (uuid,event_id,category_id,service_id,username,event_data,request_ipaddress,created_date))
- 
+             insert_status = cursor.execute(QUERY_DATA
+                                            % (uuid, event_id, category_id,
+                                               service_id, username, event_data,
+                                               request_ipaddress, created_date))
              if str(insert_status) == "1":
                  infoMsg = "Success: " + all_data
                  log_info(infoMsg)
              else:
                  errMsg = "QUERY_DATA query failed" + all_data
                  log_errors(errMsg)
-                 audit_insert = cursor.execute(AUDIT_DATA % (uuid,event_id,category_id,service_id,username,event_data,request_ipaddress,created_date))
+                 audit_insert = cursor.execute(AUDIT_DATA
+                                               % (uuid, event_id, category_id,
+                                                  service_id, username,
+                                                  event_data, request_ipaddress,
+                                                  created_date))
                  if audit_insert != 1:
                    failedInsertsAudit(all_data)
 
            else:
 
-             insert_status = cursor.execute(QUERY_ALL % (uuid,event_id,category_id,service_id,username,proxy_username,event_data,request_ipaddress,created_date))
- 
+             insert_status = cursor.execute(QUERY_ALL
+                                            % (uuid, event_id, category_id,
+                                               service_id, username,
+                                               proxy_username, event_data,
+                                               request_ipaddress, created_date))
              if str(insert_status) == "1":
                  infoMsg = "Success: " + all_data
                  log_info(infoMsg)
              else:
                  errMsg = "QUERY_ALL query failed" + all_data
                  log_errors(errMsg)
-                 audit_insert = cursor.execute(AUDIT_ALL % (uuid,event_id,category_id,service_id,username,proxy_username,event_data,request_ipaddress,created_date))
+                 audit_insert = cursor.execute(AUDIT_ALL
+                                               % (uuid, event_id, category_id,
+                                                  service_id, username,
+                                                  proxy_username, event_data,
+                                                  request_ipaddress,
+                                                  created_date))
                  if audit_insert != 1:
                    failedInsertsAudit(all_data)         
-
      
            if track_history == "1":
       
@@ -206,7 +232,11 @@ def processRequest(uuid,service_name,category_name,event_name,username,proxy_use
                  hist_check = cursor.execute(HIST_SELECT_QUERY % (track_history_code))
                  results = cursor.fetchall()
                  if len(results) != 0:         
-                   hist_status = cursor.execute(HIST_INSERT_QUERY % (track_history_code,uuid,event_id,category_id,service_id,username,created_date))
+                   hist_status = cursor.execute(HIST_INSERT_QUERY
+                                                % (track_history_code, uuid,
+                                                   event_id, category_id,
+                                                   service_id, username,
+                                                   created_date))
                    if str(hist_status) == "1":
                      infoMsg = "History request recorded:" + " " + str(track_history_code) + " " + all_data
                      log_info(infoMsg)
@@ -216,7 +246,11 @@ def processRequest(uuid,service_name,category_name,event_name,username,proxy_use
                      trackHistoryErrors(history_data)
                  else:
                    parent_query = "Y"
-                   hist_status = cursor.execute(HIST_INSERT_QUERY_PARENT % (track_history_code,uuid,event_id,category_id,service_id,username,created_date,parent_query))
+                   hist_status = cursor.execute(HIST_INSERT_QUERY_PARENT
+                                                % (track_history_code, uuid,
+                                                   event_id, category_id,
+                                                   service_id, username,
+                                                   created_date,parent_query))
                    if str(hist_status) == "1":
                      infoMsg = "History request recorded:" + " " + str(track_history_code) + " " + all_data
                      log_info(infoMsg)
@@ -245,7 +279,7 @@ def processRequest(uuid,service_name,category_name,event_name,username,proxy_use
            else:
                data = json.dumps({'result':{'Status':'Success','Details':'Provenance recorded'}}, indent=4)
    
-           return (data,webstatus)
+           return (data, webstatus)
 
         else:
            cursor.close()
@@ -255,7 +289,7 @@ def processRequest(uuid,service_name,category_name,event_name,username,proxy_use
            # notify_support
            log_errors(errMsg)
            failedInsertsAudit(all_data)
-           return (data,webstatus)
+           return (data, webstatus)
 
      except Exception, e:
         errMsg = "EXCEPTION: " + str(e) + ": " + all_data
@@ -268,12 +302,12 @@ def processRequest(uuid,service_name,category_name,event_name,username,proxy_use
 
         webstatus = '500 Internal Server Error'
         data = json.dumps({'result':{'Status':'Failed','Details':'Provenance was not recorded. Audit data recorded.'}}, indent=4) 
-        return (data,webstatus)
+        return (data, webstatus)
      
    else:
      webstatus = '400 Bad Request'
      data = json.dumps({'result':{'Status':'Failed','Details':'Incorrect Service/Category/Event data.'}}, indent=4)
-     return (data,webstatus)
+     return (data, webstatus)
 
 
 def getDateTime():
