@@ -40,7 +40,7 @@
 #
 #
 # Author: Sangeeta Kuchimanchi (sangeeta@iplantcollaborative.org)
-# Date: 10/11/2012 
+# Date: 10/11/2012
 #
 
 import os
@@ -68,25 +68,25 @@ def insertAudit():
   scriptname = "Audit"
 
   try:
- 
-    conn = MySQLdb.connect (host = PROV_DB_HOST,user = PROV_DB_USERNAME,passwd = PROV_DB_PASSWORD,db = PROV_DB_NAME)
-    cursor = conn.cursor ()
-  
+
+    conn = MySQLdb.connect(host=PROV_DB_HOST, user=PROV_DB_USERNAME,
+                           passwd=PROV_DB_PASSWORD, db=PROV_DB_NAME)
+    cursor = conn.cursor()
+
   except:
-    
+
     errMsg = "Audit: Connection failed to Provenance database."
     trackAuditExceptions(errMsg)
     notifySupport(errMsg,scriptname)
-       
+
   try:
 
     cursor.execute(AUDIT_SELECT % ('N'))
     results = cursor.fetchall()
 
     if len(results) != 0:
-      
-      for row in results:
 
+      for row in results:
         id = int(row[0])
         uuid = int(row[1])
         service_id = int(row[2])
@@ -102,7 +102,10 @@ def insertAudit():
 
         if proxy_username is None and event_data is None:
 
-         insert_status = cursor.execute(QUERY_NO_PROXY_DATA % (uuid,event_id,category_id,service_id,username,request_ipaddress,created_date))
+         insert_status = cursor.execute(QUERY_NO_PROXY_DATA %
+                                        (uuid, event_id, category_id,
+                                          service_id,username,request_ipaddress,
+                                          created_date))
          if insert_status == 1:
            update_status = cursor.execute(AUDIT_UPDATE_STATUS % ('Y',id))
            if update_status == 1:
@@ -121,8 +124,10 @@ def insertAudit():
 
         elif proxy_username != None:
 
-          insert_status = cursor.execute(QUERY_PROXY % (uuid,event_id,category_id,service_id,username,proxy_username,request_ipaddress,created_date))
-
+          insert_status = cursor.execute(QUERY_PROXY %
+                                        (uuid, event_id, category_id,
+                                          service_id, username, proxy_username,
+                                          request_ipaddress, created_date))
           if insert_status == 1:
             update_status = cursor.execute(AUDIT_UPDATE_STATUS % ('Y',id))
             if update_status == 1:
@@ -141,7 +146,10 @@ def insertAudit():
 
         elif event_data != None:
 
-          insert_status = cursor.execute(QUERY_DATA % (uuid,event_id,category_id,service_id,username,event_data,request_ipaddress,created_date))
+          insert_status = cursor.execute(QUERY_DATA %
+                                        (uuid, event_id, category_id,
+                                          service_id, username, event_data,
+                                          request_ipaddress, created_date))
 
           if insert_status == 1:
             update_status = cursor.execute(AUDIT_UPDATE_STATUS % ('Y',id))
@@ -161,7 +169,11 @@ def insertAudit():
             notifySupport(errMsg,scriptname)
         else:
 
-          insert_status = cursor.execute(QUERY_ALL % (uuid,event_id,category_id,service_id,username,proxy_username,event_data,request_ipaddress,created_date))
+          insert_status = cursor.execute(QUERY_ALL %
+                                        (uuid, event_id, category_id,
+                                          service_id, username, proxy_username,
+                                          event_data, request_ipaddress,
+                                          created_date))
 
           if insert_status == 1:
             update_status = cursor.execute(AUDIT_UPDATE_STATUS % ('Y',id))
@@ -176,16 +188,16 @@ def insertAudit():
           else:
             errMsg = "Audit: QUERY_ALL query failed" + all_data
             log_errors(errMsg)
-            failedInsertsAudit(all_data)   
+            failedInsertsAudit(all_data)
             notifySupport(errMsg,scriptname)
 
-    cursor.close() 
+    cursor.close()
 
   except Exception, e:
 
     errMsg = "AUDIT EXCEPTION: " + str(e) + ": " + all_data
     log_exception(errMsg)
-    failedInsertsAudit(all_data) 
+    failedInsertsAudit(all_data)
     notifySupport(errMsg,scriptname)
     cursor.close()
 
@@ -196,4 +208,3 @@ if __name__ == "__main__":
 	except Exception, e:
           errMsg = "insertAudit() was not initialized" + " " + str(e)
           notifySupport(errMsg,"Audit")
-    
