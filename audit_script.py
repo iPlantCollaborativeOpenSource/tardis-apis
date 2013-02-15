@@ -75,9 +75,9 @@ def insertAudit():
 
   except:
 
-    errMsg = "Audit: Connection failed to Provenance database."
-    trackAuditExceptions(errMsg)
-    notifySupport(errMsg,scriptname)
+    err_msg = "Audit: Connection failed to Provenance database."
+    trackAuditExceptions(err_msg)
+    notifySupport(err_msg, scriptname)
 
   try:
 
