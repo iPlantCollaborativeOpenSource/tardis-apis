@@ -60,7 +60,7 @@ sys.path.append(CONFIG_PATH)
 from db_queries import *
 from configs import *
 from prov_logging import *
-from scriptTracking import *
+from script_tracking import *
 
 
 def insertAudit():
