@@ -40,7 +40,7 @@
 #
 #
 # Author: Sangeeta Kuchimanchi (sangeeta@iplantcollaborative.org)
-# Date: 10/11/2012 
+# Date: 10/11/2012
 #
 
 
@@ -61,7 +61,8 @@ import smtplib
 CONFIG_PATH = '/scripts'
 
 sys.path.append(CONFIG_PATH)
-from configs import *
+from configs import (HISTORY_TRACKING_LOGFILE, PROV_FAILED_INSERTS_FILE,
+                    MAIL_FROM, MAIL_TO)
 
 
 logging.basicConfig (level=logging.DEBUG,
@@ -72,45 +73,46 @@ logging.basicConfig (level=logging.DEBUG,
 
 def getHistoryCode(query_string):
 
-  encoded = base64.b64encode(query_string)
-  return (encoded)
+    encoded = base64.b64encode(query_string)
+    return (encoded)
 
 
 def trackHistoryInfo(infodata):
 
-  infoMsg = "History Recorded: " + " " + str(infodata)
-  logging.info(infoMsg)
+    infoMsg = "History Recorded: " + " " + str(infodata)
+    logging.info(infoMsg)
 
 def trackHistoryErrors(error_data):
 
-  errMsg = "History Error: " + str(error_data)
-  logging.error(errMsg)
+    errMsg = "History Error: " + str(error_data)
+    logging.error(errMsg)
 
 def trackHistoryExceptions(error_data):
 
-  errMsg = "History Exception: " + str(error_data)
-  logging.debug(errMsg)
+    errMsg = "History Exception: " + str(error_data)
+    logging.debug(errMsg)
 
 def failedInsertsAudit(data):
 
-  curr_time = datetime.datetime.now()
-  insf = open(PROV_FAILED_INSERTS_FILE,"a")
-  insf.write(str(curr_time) + " " + data + "\n")
-  insf.close()
+    curr_time = datetime.datetime.now()
+    insf = open(PROV_FAILED_INSERTS_FILE,"a")
+    insf.write(str(curr_time) + " " + data + "\n")
+    insf.close()
 
 def notifySupport(msg,script):
 
-  if script == "Audit":
-    message = "Audit Script: " + str(msg)
-  else:
-    message = "History Script: " + str(msg)
+    if script == "Audit":
+        message = "Audit Script: " + str(msg)
+    else:
+        message = "History Script: " + str(msg)
 
-  mime_msg = MIMEText (message, 'html')
-  mime_msg['Subject'] = '[iPlant Provenance] Exception in ' + str(script) + ' script'
-  mime_msg['From'] = MAIL_FROM
-  mime_msg['To'] = MAIL_TO
-
-  s = smtplib.SMTP('localhost')
-  s.sendmail (MAIL_FROM, MAIL_TO, mime_msg.as_string())
-  s.close()
+    mime_msg = MIMEText (message, 'html')
+    mime_msg['Subject'] = ('[iPlant Provenance] Exception in ' +
+                            str(script) + ' script')
+    mime_msg['From'] = MAIL_FROM
+    mime_msg['To'] = MAIL_TO
+    # Apparently, we're assuming that the deployed server has SMTP
+    s = smtplib.SMTP('localhost')
+    s.sendmail (MAIL_FROM, MAIL_TO, mime_msg.as_string())
+    s.close()
 
