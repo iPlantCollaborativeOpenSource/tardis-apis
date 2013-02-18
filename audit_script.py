@@ -52,25 +52,25 @@ import sys
 #import smtplib
 import MySQLdb
 #from email.MIMEText import MIMEText
-import site
+#import site
 
 CONFIG_PATH = '/scripts'
 sys.path.append(CONFIG_PATH)
 
 # explictly state what is used from TARDIS codebase, no ``import *``
-from db_queries import (AUDIT_UPDATE_STATUS, QUERY_ALL, QUERY_DATA,
-                        QUERY_NO_PROXY_DATA, QUERY_PROXY)
+from db_queries import (AUDIT_SELECT, AUDIT_UPDATE_STATUS, QUERY_ALL,
+                        QUERY_DATA, QUERY_NO_PROXY_DATA, QUERY_PROXY)
 from configs import (PROV_DB_HOST, PROV_DB_NAME, PROV_DB_USERNAME,
                     PROV_DB_PASSWORD)
 from prov_logging import (log_errors, log_exception, log_info)
 from script_tracking import (failedInsertsAudit, notifySupport,
-                            trackAuditExceptions)
+                            trackHistoryExceptions)
 
 # consider adding context to insert and update "status codes"
 #AUDIT_SUCCESS = 1
 
 def insert_audit():
-
+    """<add a docstring when method is fully understood>"""
     scriptname = "Audit"
 
     try:
@@ -79,7 +79,7 @@ def insert_audit():
         cursor = conn.cursor()
     except:
         err_msg = "Audit: Connection failed to Provenance database."
-        trackAuditExceptions(err_msg)
+        trackHistoryExceptions(err_msg)
         notifySupport(err_msg, scriptname)
 
 
@@ -217,11 +217,16 @@ def insert_audit():
         notifySupport(err_msg, scriptname)
         cursor.close()
 
+def main():
+    """Script entry point.
+
+    This runs an audit check and inserts any necessary audit records.
+    """
+    try:
+        insert_audit()
+    except Exception, e:
+        err_msg = "insert_audit() was not initialized " + str(e)
+        notifySupport(err_msg, "Audit")
 
 if __name__ == "__main__":
-	try:
-	  insert_audit()
-	except Exception, e:
-          err_msg = "insert_audit() was not initialized" + " " + str(e)
-          notifySupport(err_msg, "Audit")
-
+    main()
