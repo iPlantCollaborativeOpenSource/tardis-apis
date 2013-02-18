@@ -106,7 +106,7 @@ def notifySupport(msg,script):
     else:
         message = "History Script: " + str(msg)
 
-    mime_msg = MIMEText (message, 'html')
+    mime_msg = MIMEText(message, 'html')
     mime_msg['Subject'] = ('[iPlant Provenance] Exception in ' +
                             str(script) + ' script')
     mime_msg['From'] = MAIL_FROM
