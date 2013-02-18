@@ -44,19 +44,12 @@
 #
 
 
-import os
-import subprocess
-from subprocess import PIPE
-import string
-import fileinput
-import sys
-import datetime
-import time
-import logging
-import site
 import base64
-from email.MIMEText import MIMEText
+import datetime
+from email.mime.text import MIMEText
+import logging
 import smtplib
+import sys
 
 CONFIG_PATH = '/scripts'
 
@@ -72,34 +65,33 @@ logging.basicConfig (level=logging.DEBUG,
 
 
 def getHistoryCode(query_string):
-
-    encoded = base64.b64encode(query_string)
-    return (encoded)
+    return base64.b64encode(query_string)
 
 
+# why aren't the functions from prov_logging used?
 def trackHistoryInfo(infodata):
+    info_msg = "History Recorded: " + " " + str(infodata)
+    logging.info(info_msg)
 
-    infoMsg = "History Recorded: " + " " + str(infodata)
-    logging.info(infoMsg)
 
 def trackHistoryErrors(error_data):
+    err_msg = "History Error: " + str(error_data)
+    logging.error(err_msg)
 
-    errMsg = "History Error: " + str(error_data)
-    logging.error(errMsg)
 
 def trackHistoryExceptions(error_data):
-
     errMsg = "History Exception: " + str(error_data)
     logging.debug(errMsg)
 
-def failedInsertsAudit(data):
 
+def failedInsertsAudit(data):
     curr_time = datetime.datetime.now()
     insf = open(PROV_FAILED_INSERTS_FILE,"a")
     insf.write(str(curr_time) + " " + data + "\n")
     insf.close()
 
-def notifySupport(msg,script):
+
+def notifySupport(msg, script):
 
     if script == "Audit":
         message = "Audit Script: " + str(msg)
@@ -112,7 +104,7 @@ def notifySupport(msg,script):
     mime_msg['From'] = MAIL_FROM
     mime_msg['To'] = MAIL_TO
     # Apparently, we're assuming that the deployed server has SMTP
-    s = smtplib.SMTP('localhost')
-    s.sendmail (MAIL_FROM, MAIL_TO, mime_msg.as_string())
-    s.close()
+    smtp = smtplib.SMTP('localhost')
+    smtp.sendmail (MAIL_FROM, MAIL_TO, mime_msg.as_string())
+    smtp.close()
 
