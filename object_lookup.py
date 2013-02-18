@@ -43,32 +43,11 @@
 # Date: 10/11/2012
 #
 
-import os
-#import subprocess
-#from subprocess import PIPE
-#import string
-import httplib
-import urllib
-from urlparse import urlparse
-import fileinput
 import sys
-import datetime
-import time
-import smtplib
 import MySQLdb
-from email.MIMEText import MIMEText
-import webob
-from webob import Request, Response
+from webob import Request
 import logging
-import site
 import json
-#from thrift.transport import TTransport
-#from thrift.transport import TSocket
-#from thrift.transport import THttpClient
-#from thrift.protocol import TBinaryProtocol
-#from genpy.Snowflake import Snowflake
-#from genpy.Snowflake import ttypes
-#from genpy.Snowflake import constants
 
 CONFIG_PATH = '/scripts'
 
@@ -122,8 +101,8 @@ def application(environ, start_response):
             webstatus = '404 Not Found'
 
         cursor.close()
-    except Exception, e:
-        err_msg = "MySQL DB Exception: " + " " + str(e) + " " + objid
+    except Exception, exc:
+        err_msg = "MySQL DB Exception: " + " " + str(exc) + " " + objid
         logging.debug(err_msg)
 
         data_string = json.dumps({'Status': 'Failed',
