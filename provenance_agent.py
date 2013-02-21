@@ -40,28 +40,14 @@
 #
 #
 # Author: Sangeeta Kuchimanchi (sangeeta@iplantcollaborative.org)
-# Date: 10/11/2012 
+# Date: 10/11/2012
 #
 
-import os
 import re
-import subprocess
-from subprocess import PIPE
-import string
-import httplib
-import urllib
-from urlparse import urlparse
-import fileinput
 import sys
-import datetime
-import time
-import smtplib
 import MySQLdb
-from email.MIMEText import MIMEText
-import webob
-from webob import Request, Response
+from webob import Request
 import logging
-import site
 import json
 
 CONFIG_PATH = '/scripts'
@@ -70,13 +56,13 @@ sys.path.append(CONFIG_PATH)
 from db_queries import *
 from configs import *
 from prov_logging import *
-from scriptTracking import *
+from script_tracking import *
 
 def application(environ, start_response):
 
-   req = Request(environ)
+  req = Request(environ)
 
-   if (req.method == 'POST'):
+  if (req.method == 'POST'):
 
       uuid = req.params.get('uuid')
       service_name = req.params.get('service_name')
@@ -89,10 +75,15 @@ def application(environ, start_response):
       track_history = req.params.get('track_history')
       track_history_code = req.params.get('track_history_code')
       created_date = get_date_time()
-      version = req.params.get('version')   
+      version = req.params.get('version')
 
-      all_data = "{" + str(uuid) + "," + str(service_name) + "," + str(category_name) + "," + str(event_name) + "," + str(username) + "," + str(proxy_username) + "," + str(event_data) + "," + str(request_ipaddress) + "," + str(created_date) + "," + str(version) + "}"
-     
+      # if the above was an object, a json.dumps() call would create this
+      # same string that is being contenated
+      all_data = ("{" + str(uuid) + "," + str(service_name) + "," +
+                  str(category_name) + "," + str(event_name) + "," +
+                  str(username) + "," + str(proxy_username) + "," +
+                  str(event_data) + "," + str(request_ipaddress) + ","
+                  + str(created_date) + "," + str(version) + "}")
       infoMsg = "Received provenance request: " + all_data
       log_info(infoMsg)
 
@@ -107,22 +98,27 @@ def application(environ, start_response):
                                                 username, proxy_username,
                                                 event_data, request_ipaddress,
                                                 created_date, version,
-                                                track_history,track_history_code)
+                                                track_history,
+                                                track_history_code)
       else:
-         json_data = json.dumps({'result':{'Status':'Failed','Details':'Validation Failed', 'Report': details}}, indent=4)
+         json_data = json.dumps({'result':{'Status': 'Failed',
+                                'Details': 'Validation Failed',
+                                'Report': details}}, indent=4)
          webstatus = '400 Bad Request'
-   else:
+  else:
       webstatus = '405 Method Not Allowed'
-      json_data = json.dumps({'result':{'Status':'Failed','Details':'Incorrect HTTP METHOD'}}, indent=4)      
-   
-   infoMsg = "Request Processed: " + str(webstatus) + " Details: " + str(json_data)
-   log_info(infoMsg)
-      
-   response_headers = [('Content-type', 'application/json')]
-   start_response(webstatus, response_headers)
-   return (json_data)
-         
-  
+      json_data = json.dumps({'result':{'Status': 'Failed',
+                              'Details': 'Incorrect HTTP METHOD'}},
+                              indent=4)
+
+  infoMsg = "Request Processed: " + str(webstatus) + " Details: " + str(json_data)
+  log_info(infoMsg)
+
+  response_headers = [('Content-type', 'application/json')]
+  start_response(webstatus, response_headers)
+  return (json_data)
+
+
 def process_request(uuid, service_name, category_name, event_name, username,
                    proxy_username, event_data, request_ipaddress, created_date,
                    version, track_history, track_history_code):
@@ -137,7 +133,7 @@ def process_request(uuid, service_name, category_name, event_name, username,
    if event_id != "EMPTY" and category_id != "EMPTY" and service_id != "EMPTY":
 
      all_data = "{" + str(uuid) + "," + str(service_name) + "," + str(category_name) + "," + str(event_name) + "," + str(username) + "," + str(proxy_username) + "," + str(event_data) + "," + str(request_ipaddress) + "," + str(created_date) + "}"
-       
+
      try:
         conn = MySQLdb.connect (host = PROV_DB_HOST,user = PROV_DB_USERNAME,passwd = PROV_DB_PASSWORD,db = PROV_DB_NAME)
         cursor = conn.cursor()
@@ -148,7 +144,7 @@ def process_request(uuid, service_name, category_name, event_name, username,
 
            if proxy_username is None and event_data is None:
              insert_status = cursor.execute(QUERY_NO_PROXY_DATA % (uuid, event_id,
-                                            category_id, service_id, username, 
+                                            category_id, service_id, username,
                                             request_ipaddress, created_date))
              if str(insert_status) == "1":
                 infoMsg = "Success: " + all_data
@@ -163,7 +159,7 @@ def process_request(uuid, service_name, category_name, event_name, username,
                                                  created_date))
                 if audit_insert != 1:
                    failedInsertsAudit(all_data)
-          
+
            elif proxy_username != None:
              insert_status = cursor.execute(QUERY_PROXY
                                             % (uuid, event_id, category_id,
@@ -186,7 +182,7 @@ def process_request(uuid, service_name, category_name, event_name, username,
                    failedInsertsAudit(all_data)
 
            elif event_data != None:
-            
+
              insert_status = cursor.execute(QUERY_DATA
                                             % (uuid, event_id, category_id,
                                                service_id, username, event_data,
@@ -225,17 +221,17 @@ def process_request(uuid, service_name, category_name, event_name, username,
                                                   request_ipaddress,
                                                   created_date))
                  if audit_insert != 1:
-                   failedInsertsAudit(all_data)         
-     
+                   failedInsertsAudit(all_data)
+
            if track_history == "1":
-      
+
              if track_history_code != None:
- 
+
                  history_data = str(track_history_code) + " " + str(all_data)
-         
+
                  hist_check = cursor.execute(HIST_SELECT_QUERY % (track_history_code))
                  results = cursor.fetchall()
-                 if len(results) != 0:         
+                 if len(results) != 0:
                    hist_status = cursor.execute(HIST_INSERT_QUERY
                                                 % (track_history_code, uuid,
                                                    event_id, category_id,
@@ -262,7 +258,7 @@ def process_request(uuid, service_name, category_name, event_name, username,
                      errMsg = "HIST_INSERT_QUERY_PARENT failed" + history_data
                      log_errors(errMsg)
                      trackHistoryErrors(history_data)
-         
+
              else:
                  history_data = str(username) + ":" + str(uuid) + ":" + str(created_date)
                  history_code = getHistoryCode(history_data)
@@ -279,10 +275,10 @@ def process_request(uuid, service_name, category_name, event_name, username,
 
            webstatus = '200 OK'
            if track_history == "1" and track_history_code == None:
-               data = json.dumps({'result':{'Status':'Success','Details':'Provenance recorded','History code':history_code}}, indent=4)   
+               data = json.dumps({'result':{'Status':'Success','Details':'Provenance recorded','History code':history_code}}, indent=4)
            else:
                data = json.dumps({'result':{'Status':'Success','Details':'Provenance recorded'}}, indent=4)
-   
+
            return (data, webstatus)
 
         else:
@@ -300,14 +296,14 @@ def process_request(uuid, service_name, category_name, event_name, username,
         log_exception(errMsg)
         audit_insert = cursor.execute(AUDIT_ALL % (uuid,event_id,category_id,service_id,username,proxy_username,event_data,request_ipaddress,created_date))
         if audit_insert != 1:
-          failedInsertsAudit(all_data) 
- 
+          failedInsertsAudit(all_data)
+
         cursor.close()
 
         webstatus = '500 Internal Server Error'
-        data = json.dumps({'result':{'Status':'Failed','Details':'Provenance was not recorded. Audit data recorded.'}}, indent=4) 
+        data = json.dumps({'result':{'Status':'Failed','Details':'Provenance was not recorded. Audit data recorded.'}}, indent=4)
         return (data, webstatus)
-     
+
    else:
      webstatus = '400 Bad Request'
      data = json.dumps({'result':{'Status':'Failed','Details':'Incorrect Service/Category/Event data.'}}, indent=4)
@@ -348,7 +344,7 @@ def get_id(name, key, version):
      return id
    else:
      cursor.close()
-     return "EMPTY" 
+     return "EMPTY"
 
 
 def validate(uuid, service_name, category_name, event_name, username, proxy_username,
@@ -356,7 +352,7 @@ def validate(uuid, service_name, category_name, event_name, username, proxy_user
    # TODO: determine if a regex defined as r'^[0-9]+$', etc is
    # compiled or not... this could be improve in a number of ways
    if uuid != None and service_name != None and category_name != None and event_name != None and username != None:
-    
+
       if re.match (r'^[0-9]+$',uuid) != None:
          if re.match (r'^[A-Za-z0-9\-_]+$',service_name) != None:
             if re.match (r'^[A-Za-z0-9\-_]+$',category_name) != None:
@@ -367,44 +363,44 @@ def validate(uuid, service_name, category_name, event_name, username, proxy_user
                             if version != None:
                                if re.match (r'^[A-Za-z0-9\-_]+$',version) != None:
                                   details = "Validation Passed"
-                                  return (True,details)
+                                  return (True, details)
                                else:
                                   details = "version value is not in the correct format"
-                                  return (False,details)
+                                  return (False, details)
                             else:
                                details = "Validation Passed"
-                               return (True,details)
+                               return (True, details)
 
                          else:
                              details = "proxy_username value is not in the correct format"
-                             return (False,details)
+                             return (False, details)
                       else:
                          if version != None:
                             if re.match (r'^[A-Za-z0-9\-_]+$',version) != None:
                                details = "Validation Passed"
-                               return (True,details)
+                               return (True, details)
                             else:
                                details = "version value is not in the correct format"
-                               return (False,details)
+                               return (False, details)
                          else:
                             details = "Validation Passed"
-                            return (True,details)
- 
+                            return (True, details)
+
                    else:
                       details = "username value is not in the correct format"
-                      return (False,details)      
+                      return (False, details)
                else:
                   details = "event_name value is not in the correct format"
-                  return (False,details)
+                  return (False, details)
             else:
                details = "category_name value is not in the correct format"
-               return (False,details) 
+               return (False, details)
          else:
             details = "service_name value is not in the correct format"
-            return (False,details)
+            return (False, details)
       else:
          details = "uuid value is not in the correct format"
-         return (False,details) 
+         return (False, details)
    else:
       details = "uuid/event_name/category_name/service_name/username cannot be empty"
-      return (False,details)    
+      return (False, details)
