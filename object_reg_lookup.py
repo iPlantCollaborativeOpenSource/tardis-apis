@@ -143,13 +143,12 @@ def application(environ, start_response):
        webstatus = '500 Internal Server Error'
   
    else:
-
      data_string = json.dumps({'Status' : 'Failed', 'Details' : 'Incorrect HTTP METHOD'}, indent=4)
      webstatus = '405 Method Not Allowed'
 
 
    response_headers = [('Content-type', 'application/json')]
-   start_response(webstatus,response_headers)
+   start_response(webstatus, response_headers)
    return (data_string)
 
 def get_uuid(obj_data):
