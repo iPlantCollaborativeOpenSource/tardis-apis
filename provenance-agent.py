@@ -48,7 +48,7 @@ def application(environ, start_response):
       created_date = getDateTime()
       version = req.params.get('version')   
 
-      all_data = "{" + str(uuid) + "," + str(service_name) + "," + str(category_name) + "," + str(event_name) + "," + str(username) + "," + str(proxy_username) + "," + str(event_data) + "," + str(request_ipaddress) + "," + str(created_date) + "," + str(version) + "}"
+      all_data = "{" + str(uuid) + "," + str(service_name) + "," + str(category_name) + "," + str(event_name) + "," + str(username) + "," + str(proxy_username) + "," + str(event_data) + "," + str(request_ipaddress) + "," + str(created_date) + "," + str(version) + "," + str(track_history) + "," + str(track_history_code) + "}"
      
       infoMsg = "Received provenance request: " + all_data
       LogInfo(infoMsg)
@@ -197,6 +197,8 @@ def processRequest(uuid,service_name,category_name,event_name,username,proxy_use
            webstatus = '200 OK'
            if track_history == "1" and track_history_code == None:
                data = json.dumps({'result':{'Status':'Success','Details':'Provenance recorded','History code':history_code}}, indent=4)   
+           elif track_history == None and track_history_code != None:
+               data = json.dumps({'result':{'Status':'Success','Details':'Provenance recorded','Warning':'Track history flag is not set but history code was sent'}}, indent=4)
            else:
                data = json.dumps({'result':{'Status':'Success','Details':'Provenance recorded'}}, indent=4)
    
