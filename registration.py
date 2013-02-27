@@ -27,11 +27,7 @@ from genpy.Snowflake import Snowflake
 from genpy.Snowflake import ttypes
 from genpy.Snowflake import constants
 
-<<<<<<< HEAD
-CONFIG_PATH = '/scripts/public/v1.2'
-=======
 CONFIG_PATH = '/scripts/public/v1.3'
->>>>>>> 1.3
 
 sys.path.append(CONFIG_PATH)
 from db_queries import *
@@ -42,20 +38,64 @@ from prov_logging import *
 def application(environ, start_response):
 
    req = Request(environ)
-
    if (req.method == 'POST'):
      if (req.content_type == "application/json"):
 
+       table = req.params.get('table')
        json_data = loads(req.body)
-       objid = json['service_object_id']
-       objname = json['object_name']
+       
+       if table == "Object":
+         objid = json['service_object_id']
+         objname = json['object_name']
+         objdesc = json['object_desc']    
+        
+         if objid != None:
+           ret = addRow(table,objid,objname,obj,desc)
+         else:
+           errMsg = "Object id cannot be NULL"
+
+       elif table == "Service":
+         service_id = json['service_id']
+         service_name = json['service_name']
+         service_desc = json['service_desc']
+         service_link = json['service_link']
+         service_ipaddress = json['service_ipaddress']
+         service_group = json['service_group']
+         service_type = json['service_type']
+         service_version = json['service_version']
+         version_status = json['version_status']
+        
+         if service_id != None and service_name != None and service_link != None and service_ipaddress != None and service_type != None and service_version != None:
+           ret = addRow(table,service_id, service_name,service_desc,service_link,service_ipaddress,service_group,service_type,service_version,version_status)
+         else:
+           errMsg = "Service data cannot have null"
 
 
-        id = json['id']
-        method = getattr(self.obj, method)
-        result = method(*params)
+       elif table == "Category":
+         category_id = json['category_id']
+         category_name = json['category_name']
+         category_desc = json['category_desc']
+        
+         if category_id != None and category_name != None:
+           ret = addRow(table,)
+         else:
+           errMsg = "Category ID/Category Name cannot be null"
 
 
+       elif table == "Event":
+         event_id = json['event_id']
+         event_name = json['event_name']
+         event_desc = json['event_desc']
+         ret = addRow()
+
+         if event_id != None and event_name != None:
+           ret = addRow()
+         else:
+           errMsg = "Event ID/Event name cannot be null"
+
+       else:
+
+         # Incorrect table name
 
      else:
 
@@ -131,7 +171,6 @@ def application(environ, start_response):
    response_headers = [('Content-type', 'application/json')]
    start_response(webstatus,response_headers)
    return (data_string)
-
 
 def getUUID(obj_data):
 

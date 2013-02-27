@@ -14,11 +14,7 @@ import base64
 from email.MIMEText import MIMEText
 import smtplib
 
-<<<<<<< HEAD
-CONFIG_PATH = '/scripts/public/v1.1'
-=======
-CONFIG_PATH = '/scripts/public/v1.2'
->>>>>>> master
+CONFIG_PATH = '/scripts/public/v1.3'
 
 sys.path.append(CONFIG_PATH)
 from configs import *

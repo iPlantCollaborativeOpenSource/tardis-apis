@@ -27,7 +27,7 @@ from genpy.Snowflake import Snowflake
 from genpy.Snowflake import ttypes
 from genpy.Snowflake import constants
 
-CONFIG_PATH = '/scripts/public/v1.2'
+CONFIG_PATH = '/scripts/public/v1.3'
 
 sys.path.append(CONFIG_PATH)
 from db_queries import *
@@ -43,7 +43,20 @@ logging.basicConfig (level=logging.DEBUG,
 def application(environ, start_response):
 
    req = Request(environ)
+
    objid = req.params.get('service_object_id')
+   service_name = req.params.get('service_name')
+   category_name = req.params.get('category_name')
+   event_name = req.params.get('event_name')
+
+   body = req.query_string
+   content =  req.headers.items()
+   length = str(len(req.query_string))
+   #print body, content, length
+
+   serv = req.content_length
+   print serv
+
 
 
    try:
@@ -51,6 +64,7 @@ def application(environ, start_response):
      cursor = conn.cursor ()
      cursor.execute(OBJECT_QUERY_UUID_LOOKUP % (objid))
      results = cursor.fetchall()
+     print len(results)
  
      if len(results) == 1: 
        uid = str(results[0][0])
