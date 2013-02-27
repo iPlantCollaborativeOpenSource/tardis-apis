@@ -45,8 +45,8 @@ def application(environ, start_response):
    req = Request(environ)
    objid = req.params.get('service_object_id')
 
-   try:
 
+   try:
      conn = MySQLdb.connect (host = PROV_DB_HOST,user = PROV_DB_USERNAME,passwd = PROV_DB_PASSWORD,db = PROV_DB_NAME)
      cursor = conn.cursor ()
      cursor.execute(OBJECT_QUERY_UUID_LOOKUP % (objid))
