@@ -98,6 +98,7 @@ def processRequest(uuid,service_name,category_name,event_name,username,proxy_use
         if len(check_results) == 1:
 
            if proxy_username is None and event_data is None:
+             print "In proxy_username and event_data is none"
              insert_status = cursor.execute(QUERY_NO_PROXY_DATA % (uuid,event_id,category_id,service_id,username,request_ipaddress,created_date))
              if str(insert_status) == "1":
                 infoMsg = "Success: " + all_data
@@ -111,6 +112,7 @@ def processRequest(uuid,service_name,category_name,event_name,username,proxy_use
           
            elif proxy_username != None:
 
+             print "In proxy_username"
              insert_status = cursor.execute(QUERY_PROXY % (uuid,event_id,category_id,service_id,username,proxy_username,request_ipaddress,created_date))
 
              if str(insert_status) == "1":
@@ -125,6 +127,8 @@ def processRequest(uuid,service_name,category_name,event_name,username,proxy_use
 
            elif event_data != None:
             
+             print "In event_data"
+             print event_data
              insert_status = cursor.execute(QUERY_DATA % (uuid,event_id,category_id,service_id,username,event_data,request_ipaddress,created_date))
  
              if str(insert_status) == "1":
@@ -139,6 +143,7 @@ def processRequest(uuid,service_name,category_name,event_name,username,proxy_use
 
            else:
 
+             print "In all"
              insert_status = cursor.execute(QUERY_ALL % (uuid,event_id,category_id,service_id,username,proxy_username,event_data,request_ipaddress,created_date))
  
              if str(insert_status) == "1":
