@@ -21,7 +21,7 @@ import logging
 import site
 import json
 
-CONFIG_PATH = '/scripts/public/v1.2'
+CONFIG_PATH = '/scripts/public/v1.3'
 
 sys.path.append(CONFIG_PATH)
 from db_queries import *

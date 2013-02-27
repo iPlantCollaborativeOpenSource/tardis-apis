@@ -70,7 +70,7 @@ from genpy.Snowflake import Snowflake
 from genpy.Snowflake import ttypes
 from genpy.Snowflake import constants
 
-CONFIG_PATH = '/scripts'
+CONFIG_PATH = '/scripts/public/v1.3'
 
 sys.path.append(CONFIG_PATH)
 from db_queries import *
@@ -82,10 +82,29 @@ def application(environ, start_response):
 
    req = Request(environ)
    if (req.method == 'POST'):
+     if (req.content_type == "application/json"):
+
+       json_data = loads(req.body)
+       objid = json['service_object_id']
+       objname = json['object_name']
+
+
+        id = json['id']
+        method = getattr(self.obj, method)
+        result = method(*params)
+
+
+
+     else:
 
      objid = req.params.get('service_object_id')
      objname = req.params.get('object_name')
      objdesc = req.params.get('object_desc')
+     content_type = req.content_type
+     if content_type == "application/x-www-form-urlencoded":
+       print "JSON"
+     else:
+       print content
 
      obj_data = "[" + str(objid) + "," + str(objname) + "," + str(objdesc) + "]" 
 
