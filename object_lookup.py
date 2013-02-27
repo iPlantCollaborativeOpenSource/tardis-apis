@@ -27,7 +27,7 @@ from genpy.Snowflake import Snowflake
 from genpy.Snowflake import ttypes
 from genpy.Snowflake import constants
 
-CONFIG_PATH = '/scripts/public/v1.0'
+CONFIG_PATH = '/scripts/public/v1.1'
 
 sys.path.append(CONFIG_PATH)
 from db_queries import *
@@ -75,7 +75,7 @@ def application(environ, start_response):
 
    except Exception, e:
 
-     errMsg = "MySQL DB Exception: " + " " + str(e) + " " + objid
+     errMsg = "MySQL DB Exception: " + " " + str(e) + " " + str(objid)
      logging.debug(errMsg)
 
      data_string = json.dumps({'Status' : 'Failed'})
