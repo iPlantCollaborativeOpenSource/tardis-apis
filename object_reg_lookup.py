@@ -40,7 +40,7 @@
 #
 #
 # Author: Sangeeta Kuchimanchi (sangeeta@iplantcollaborative.org)
-# Date: 10/11/2012 
+# Date: 10/11/2012
 #
 
 import os
@@ -62,13 +62,14 @@ from webob import Request, Response
 import logging
 import site
 import json
-from thrift.transport import TTransport
-from thrift.transport import TSocket
-from thrift.transport import THttpClient
-from thrift.protocol import TBinaryProtocol
-from genpy.Snowflake import Snowflake
-from genpy.Snowflake import ttypes
-from genpy.Snowflake import constants
+import uuid
+# from thrift.transport import TTransport
+# from thrift.transport import TSocket
+# from thrift.transport import THttpClient
+# from thrift.protocol import TBinaryProtocol
+# from genpy.Snowflake import Snowflake
+# from genpy.Snowflake import ttypes
+# from genpy.Snowflake import constants
 
 CONFIG_PATH = '/scripts'
 
