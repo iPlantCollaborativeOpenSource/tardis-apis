@@ -40,7 +40,7 @@
 #
 #
 # Author: Sangeeta Kuchimanchi (sangeeta@iplantcollaborative.org)
-# Date: 10/11/2012 
+# Date: 10/11/2012
 #
 
 
@@ -58,7 +58,7 @@ QUERY_ALL = "INSERT INTO Provenance(uuid,event_id,category_id,service_id,usernam
 QUERY_EVENT_ID = "SELECT event_id FROM Event WHERE event_name='%s'"
 QUERY_EVENT_VERSION_ID = "SELECT event_id FROM Event WHERE event_name='%s' and version='%s'"
 QUERY_CATEGORY_ID = "SELECT category_id FROM Category WHERE category_name='%s'"
-QUERY_SERVICE_ID = "SELECT service_id FROM Service WHERE service_name='%s'" 
+QUERY_SERVICE_ID = "SELECT service_id FROM Service WHERE service_name='%s'"
 QUERY_CHECK_UUID = "SELECT * FROM Object WHERE uuid='%s'"
 
 HIST_SELECT_QUERY = "SELECT id FROM history_requests WHERE history_code ='%s'"
