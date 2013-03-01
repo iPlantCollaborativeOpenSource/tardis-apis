@@ -187,20 +187,15 @@ def insert_history():
                 # parent ID results greater than 1 result record
                 elif len(p_id_results) > 1:
                     err_msg = ("Multiple entries found for parent row. " +
-                                "[parent_provenance_id,child_provenance_id]:" +
-                                "[" + str(p_id) + "," + str(c_id) + "]")
-                    # NOTE - the above c_id is not available here (undefined)
-                    # need to figure how and why it was needed here...
+                                "[parent_provenance_id]:" + "[" + str(p_id) +
+                                "]")
                     trackHistoryExceptions(err_msg)
                     notifySupport(err_msg, SCRIPTNAME)
 
                 else:
                     err_msg = ("No entry found for parent row, but history " +
                                 "tracking flag enabled. [parent_provenance_id,"
-                                + "child_provenance_id]:" + "[" + str(p_id) +
-                                "," + str(c_id) + "]")
-                    # NOTE - the above c_id is not available here (undefined)
-                    # need to figure how and why it was needed here...
+                                + "]:" + "[" + str(p_id) + "]")
                     trackHistoryExceptions(err_msg)
                     notifySupport(err_msg, SCRIPTNAME)
         # finish up and close our cursor
