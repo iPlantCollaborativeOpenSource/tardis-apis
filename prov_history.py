@@ -61,7 +61,7 @@ from script_tracking import (notifySupport, trackHistoryErrors,
 # might as well define this as a global
 SCRIPTNAME = "History"
 
-def _process_single_child_results(cursor, parent_id, parent_history_code,
+def _process_single_parent_results(cursor, parent_id, parent_history_code,
                                     parent_id_results):
     """Private method for processing child results for parent records
     that only have a single result. """
@@ -180,7 +180,8 @@ def insert_history():
 
                 # parent ID results contain only 1 result record
                 if len(p_id_results) == 1:
-                    _process_single_child_results(cursor, p_id, p_history_code,
+                    _process_single_parent_results(cursor, p_id,
+                                                    p_history_code,
                                                     p_id_results)
 
                 # parent ID results greater than 1 result record

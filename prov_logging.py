@@ -1,5 +1,9 @@
 #!/usr/bin/python26
 
+"""
+Provided pre-configured logging for provenance activities.
+"""
+
 #  Copyright (c) 2011, The Arizona Board of Regents on behalf of
 #  The University of Arizona
 #
@@ -40,11 +44,11 @@
 #
 #
 # Author: Sangeeta Kuchimanchi (sangeeta@iplantcollaborative.org)
-# Date: 10/11/2012 
+# Date: 10/11/2012
 #
 
 import logging
-from configs import *
+from configs import PROV_LOGFILE
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)-8s %(message)s',
@@ -53,14 +57,21 @@ logging.basicConfig(level=logging.DEBUG,
 
 
 def log_exception(message):
-  message = str(message)
-  logging.debug(message)
+    """Logs exceptions to the configured log file for provenance
+    activities"""
+    message = str(message)
+    logging.debug(message)
 
 def log_errors(message):
-  message = str(message)
-  logging.error(message)
+    """Logs errors encountered when provenance activities fail.
+    The log file used is the provenance log file defined in
+    `configs.py`."""
+    message = str(message)
+    logging.error(message)
 
 def log_info(message):
-  message = str(message)
-  logging.info(message)
-  
+    """Logs informative messages regarding provenance actitivies to the
+    log file defined in `configs.py`."""
+    message = str(message)
+    logging.info(message)
+
