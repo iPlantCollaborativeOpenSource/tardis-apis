@@ -68,7 +68,22 @@ from script_tracking import (failedInsertsAudit, getHistoryCode,
 
 
 def application(environ, start_response):
+    """Endpoint for creating provenance records given a service, a
+    category, and an event.
 
+    These elements must be added prior to registering an object and
+    creating any provenance information.
+
+    Also included for additional tracking and bookkeeping are:
+    ``username`` - this may be a system or daemon account
+    ``proxy_username`` - the user as system account is acting on behalf of
+    ``event_data`` - any additional info associated with the event
+    ``request_ipaddress`` - the IP address of the service posting data
+    ``track_history`` - boolean-like code indicating to track history
+    ``track_history_code`` - the association code for history tracking
+    ``created_date`` - time in seconds since Epoch
+    ``version`` - string identifier indicating version
+    """
     req = Request(environ)
 
     if (req.method == 'POST'):
@@ -362,7 +377,7 @@ def process_request(uuid, service_name, category_name, event_name, username,
 
 
 def get_date_time():
-
+    """Retrieves the current time in seconds."""
     currenttime = datetime.datetime.now()
     current_in_sec = time.mktime(currenttime.timetuple())
 
@@ -370,7 +385,7 @@ def get_date_time():
 
 
 def get_id(name, key, version):
-
+    """Retrieve the identifier for a Service or Event."""
     conn = MySQLdb.connect(host=PROV_DB_HOST, user=PROV_DB_USERNAME,
                            passwd=PROV_DB_PASSWORD, db=PROV_DB_NAME)
     cursor = conn.cursor()
@@ -399,6 +414,8 @@ def get_id(name, key, version):
 
 def validate(uuid, service_name, category_name, event_name, username,
              proxy_username, version):
+    """Determine the provided information from the request is
+    acceptable."""
     # TODO: determine if a regex defined as r'^[0-9]+$', etc is
     # compiled or not... this could be improve in a number of ways
     if (uuid != None and service_name != None and category_name != None and
