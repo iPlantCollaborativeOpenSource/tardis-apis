@@ -186,8 +186,9 @@ def process_valid_request(uuid, service_name, category_name, event_name,
                 if proxy_username is None and event_data is None:
                     insert_status = cursor.execute(
                         QUERY_NO_PROXY_DATA % (uuid, event_id,
-                                               category_id, service_id, username,
-                                               request_ipaddress, created_date))
+                                               category_id, service_id,
+                                               username, request_ipaddress,
+                                               created_date))
                     if str(insert_status) == "1":
                         info_msg = "Success: " + all_data
                         log_info(info_msg)
@@ -196,7 +197,8 @@ def process_valid_request(uuid, service_name, category_name, event_name,
                         log_errors(err_msg)
                         audit_insert = cursor.execute(AUDIT_NO_PROXY_DATA
                                                       % (uuid, event_id,
-                                                         category_id, service_id,
+                                                         category_id,
+                                                         service_id,
                                                          username,
                                                          request_ipaddress,
                                                          created_date))
@@ -217,22 +219,23 @@ def process_valid_request(uuid, service_name, category_name, event_name,
                         err_msg = "QUERY_PROXY query failed" + all_data
                         log_errors(err_msg)
                         audit_insert = cursor.execute(AUDIT_PROXY
-                                                      % (
-                                                          uuid, event_id, category_id,
-                                                      service_id, username,
-                                                      proxy_username,
-                                                      request_ipaddress,
-                                                      created_date))
+                                                      % (uuid, event_id,
+                                                        category_id,
+                                                        service_id, username,
+                                                        proxy_username,
+                                                        request_ipaddress,
+                                                        created_date))
                         if audit_insert != 1:
                             failedInsertsAudit(all_data)
 
                 elif event_data != None:
 
                     insert_status = cursor.execute(QUERY_DATA
-                                                   % (
-                                                       uuid, event_id, category_id,
-                                                   service_id, username, event_data,
-                                                   request_ipaddress, created_date))
+                                                   % (uuid, event_id,
+                                                      category_id, service_id,
+                                                      username, event_data,
+                                                      request_ipaddress,
+                                                      created_date))
                     if str(insert_status) == "1":
                         info_msg = "Success: " + all_data
                         log_info(info_msg)
@@ -240,22 +243,23 @@ def process_valid_request(uuid, service_name, category_name, event_name,
                         err_msg = "QUERY_DATA query failed" + all_data
                         log_errors(err_msg)
                         audit_insert = cursor.execute(AUDIT_DATA
-                                                      % (
-                                                          uuid, event_id, category_id,
-                                                      service_id, username,
-                                                      event_data, request_ipaddress,
-                                                      created_date))
+                                                      % (uuid, event_id,
+                                                        category_id, service_id,
+                                                        username, event_data,
+                                                        request_ipaddress,
+                                                        created_date))
                         if audit_insert != 1:
                             failedInsertsAudit(all_data)
 
                 else:
 
                     insert_status = cursor.execute(QUERY_ALL
-                                                   % (
-                                                       uuid, event_id, category_id,
-                                                   service_id, username,
-                                                   proxy_username, event_data,
-                                                   request_ipaddress, created_date))
+                                                   % (uuid, event_id,
+                                                     category_id, service_id,
+                                                     username, proxy_username,
+                                                     event_data,
+                                                     request_ipaddress,
+                                                     created_date))
                     if str(insert_status) == "1":
                         info_msg = "Success: " + all_data
                         log_info(info_msg)
@@ -263,12 +267,12 @@ def process_valid_request(uuid, service_name, category_name, event_name,
                         err_msg = "QUERY_ALL query failed" + all_data
                         log_errors(err_msg)
                         audit_insert = cursor.execute(AUDIT_ALL
-                                                      % (
-                                                          uuid, event_id, category_id,
-                                                      service_id, username,
-                                                      proxy_username, event_data,
-                                                      request_ipaddress,
-                                                      created_date))
+                                                     % (uuid, event_id,
+                                                       category_id, service_id,
+                                                       username, proxy_username,
+                                                       event_data,
+                                                       request_ipaddress,
+                                                       created_date))
                         if audit_insert != 1:
                             failedInsertsAudit(all_data)
 
@@ -279,19 +283,21 @@ def process_valid_request(uuid, service_name, category_name, event_name,
                         history_data = str(
                             track_history_code) + " " + str(all_data)
 
-                        hist_check = cursor.execute(
-                            HIST_SELECT_QUERY % (track_history_code))
+                        cursor.execute(HIST_SELECT_QUERY %
+                                        (track_history_code))
                         results = cursor.fetchall()
                         if len(results) != 0:
                             hist_status = cursor.execute(HIST_INSERT_QUERY
-                                                         % (
-                                                             track_history_code, uuid,
-                                                         event_id, category_id,
-                                                         service_id, username,
-                                                         created_date))
+                                                         % (track_history_code,
+                                                            uuid, event_id,
+                                                            category_id,
+                                                            service_id,
+                                                            username,
+                                                            created_date))
                             if str(hist_status) == "1":
-                                info_msg = "History request recorded:" + " " + str(
-                                    track_history_code) + " " + all_data
+                                info_msg = ("History request recorded:" + " " +
+                                            str( track_history_code) + " " +
+                                            all_data)
                                 log_info(info_msg)
                             else:
                                 err_msg = "HIST_INSERT_QUERY failed" + \
@@ -300,8 +306,9 @@ def process_valid_request(uuid, service_name, category_name, event_name,
                                 trackHistoryErrors(history_data)
                         else:
                             parent_query = "Y"
-                            hist_status = cursor.execute(HIST_INSERT_QUERY_PARENT
-                                                         % (track_history_code,
+                            hist_status = cursor.execute(
+                                            HIST_INSERT_QUERY_PARENT % (
+                                                            track_history_code,
                                                             uuid, event_id,
                                                             category_id,
                                                             service_id,
@@ -328,8 +335,10 @@ def process_valid_request(uuid, service_name, category_name, event_name,
                         log_info(info_msg)
                 else:
                     if track_history_code != None:
-                        err_msg = "Track History flag not set but history code was sent. Please check history tracking error logs." + \
-                            " " + str(track_history_code)
+                        err_msg = ("Track History flag not set but history " +
+                                    "code was sent. Please check history " +
+                                    "tracking error logs. " +
+                                    str(track_history_code))
                         log_errors(err_msg)
                         history_data = str(
                             track_history_code) + "," + str(all_data)
@@ -339,32 +348,44 @@ def process_valid_request(uuid, service_name, category_name, event_name,
 
                 webstatus = '200 OK'
                 if track_history == "1" and track_history_code == None:
-                    data = json.dumps({'result': {'Status': 'Success', 'Details':
-                                      'Provenance recorded', 'History code': history_code}}, indent=4)
+                    data = json.dumps({'result': {'Status': 'Success',
+                                        'Details': 'Provenance recorded',
+                                        'History code': history_code}},
+                                        indent=4)
+                elif track_history == None and track_history_code != None:
+                    data = json.dumps({'result': {'Status': 'Success',
+                                        'Details': 'Provenance recorded',
+                                        'Warning': 'Track history flag is not' +
+                                        'set but history code was sent'}},
+                                        indent=4)
                 else:
                     data = json.dumps({'result': {'Status': 'Success',
-                                      'Details': 'Provenance recorded'}}, indent=4)
+                                      'Details': 'Provenance recorded'}},
+                                      indent=4)
 
                 return (data, webstatus)
 
             else:
                 cursor.close()
                 webstatus = '500 Internal Server Error'
-                data = json.dumps({'result': {'Status': 'Failed', 'Details': 'Provenance not recorded', 'Report':
-                                  'More than one record found for given UUID. Support has been notified'}}, indent=4)
+                data = json.dumps({'result': {'Status': 'Failed', 'Details':
+                                    'Provenance not recorded', 'Report':
+                                    'More than one record found for given ' +
+                                    ' UUID. Support has been notified'}},
+                                    indent=4)
                 err_msg = "Duplicate UUID enery found: " + all_data
                 # notify_support
                 log_errors(err_msg)
                 failedInsertsAudit(all_data)
                 return (data, webstatus)
 
-        except Exception, e:
-            err_msg = "EXCEPTION: " + str(e) + ": " + all_data
+        except Exception, exc:
+            err_msg = "EXCEPTION: " + str(exc) + ": " + all_data
             log_exception(err_msg)
             audit_insert = cursor.execute(
-                AUDIT_ALL % (
-                    uuid, event_id, category_id, service_id, username, proxy_username,
-                    event_data, request_ipaddress, created_date))
+                AUDIT_ALL % (uuid, event_id, category_id, service_id, username,
+                            proxy_username,event_data, request_ipaddress,
+                            created_date))
             if audit_insert != 1:
                 failedInsertsAudit(all_data)
 
@@ -372,7 +393,8 @@ def process_valid_request(uuid, service_name, category_name, event_name,
 
             webstatus = '500 Internal Server Error'
             data = json.dumps({'result': {'Status': 'Failed', 'Details':
-                              'Provenance was not recorded. Audit data recorded.'}}, indent=4)
+                              'Provenance was not recorded. Audit data ' +
+                              'recorded.'}}, indent=4)
             return (data, webstatus)
 
     else:
@@ -410,9 +432,9 @@ def get_id(name, key, version):
         results = cursor.fetchone()
 
     if results != None:
-        id = int(results[0])
+        id_ = int(results[0])
         cursor.close()
-        return id
+        return id_
     else:
         cursor.close()
         return "EMPTY"
