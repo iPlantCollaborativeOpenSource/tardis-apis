@@ -54,10 +54,17 @@ import json
 CONFIG_PATH = '/scripts'
 
 sys.path.append(CONFIG_PATH)
-from db_queries import *
-from configs import *
-from prov_logging import *
-from script_tracking import *
+from db_queries import (AUDIT_ALL, AUDIT_DATA, AUDIT_PROXY, AUDIT_NO_PROXY_DATA,
+                        HIST_INSERT_QUERY_PARENT, HIST_INSERT_QUERY,
+                        HIST_SELECT_QUERY, QUERY_ALL, QUERY_CATEGORY_ID,
+                        QUERY_CHECK_UUID, QUERY_DATA, QUERY_EVENT_ID,
+                        QUERY_NO_PROXY_DATA, QUERY_PROXY, QUERY_SERVICE_ID,
+                        QUERY_SERVICE_VERSION_ID)
+from configs import (PROV_DB_HOST, PROV_DB_USERNAME, PROV_DB_PASSWORD,
+                    PROV_DB_NAME)
+from prov_logging import log_errors, log_exception, log_info
+from script_tracking import (failedInsertsAudit, getHistoryCode,
+                            trackHistoryErrors)
 
 
 def application(environ, start_response):
