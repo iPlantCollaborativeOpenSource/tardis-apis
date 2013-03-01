@@ -1,7 +1,9 @@
 
 USE `provenance`;
 
+-- ----------------------------------------------------------------------------
 -- Insert a mythical service for testing (unit, integration, functional)
+-- ----------------------------------------------------------------------------
 INSERT INTO Service (service_name, service_desc, service_link,
     service_ipaddress, service_group, service_type, service_version)
     VALUES ('Kahn - Data Commons', 'A test applicaion',
@@ -17,11 +19,13 @@ INSERT INTO Service (service_name, service_desc, service_link,
 INSERT INTO Category (category_name, category_desc)
     VALUES ('dc-view', 'A read-only operation within Data Commons');
 INSERT INTO Category (category_name, category_desc)
-    VALUES ('dc-action', 'An action that mutates state within Data Commons');
+    VALUES ('dc-action', 'Action which mutates state w/in Data Commons');
 INSERT INTO Category (category_name, category_desc)
-    VALUES ('dc-admin', 'Operations carried out by admin user within Data Commons');
+    VALUES ('dc-admin', 'Admin operations within Data Commons');
 
+-- ----------------------------------------------------------------------------
 -- Insert events associated with the categories & mythical services
+-- ----------------------------------------------------------------------------
 INSERT INTO Event (event_name, event_desc)
     VALUES ('root-list', 'Listing of root folder');
 INSERT INTO Event (event_name, event_desc)
