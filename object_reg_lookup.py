@@ -81,105 +81,112 @@ from prov_logging import *
 
 def application(environ, start_response):
 
-   req = Request(environ)
-   if (req.method == 'POST'):
+    req = Request(environ)
+    if (req.method == 'POST'):
 
-     objid = req.params.get('service_object_id')
-     objname = req.params.get('object_name')
-     objdesc = req.params.get('object_desc')
+        objid = req.params.get('service_object_id')
+        objname = req.params.get('object_name')
+        objdesc = req.params.get('object_desc')
 
-     obj_data = "[" + str(objid) + "," + str(objname) + "," + str(objdesc) + "]"
+        obj_data = "[" + str(objid) + "," + str(objname) + "," + \
+            str(objdesc) + "]"
 
-     if objid != None:
-       try:
-         conn = MySQLdb.connect (host=PROV_DB_HOST, user=PROV_DB_USERNAME,
-                                 passwd=PROV_DB_PASSWORD, db=PROV_DB_NAME)
-         cursor = conn.cursor ()
-         cursor.execute(OBJECT_QUERY_UUID_LOOKUP % (objid))
-         results = cursor.fetchone()
- 
-         if results == None: 
-           uuid = get_uuid(obj_data)
+        if objid != None:
+            try:
+                conn = MySQLdb.connect(
+                    host=PROV_DB_HOST, user=PROV_DB_USERNAME,
+                    passwd=PROV_DB_PASSWORD, db=PROV_DB_NAME)
+                cursor = conn.cursor()
+                cursor.execute(OBJECT_QUERY_UUID_LOOKUP % (objid))
+                results = cursor.fetchone()
 
-           if uuid == None:       
-             errMsg = "Objuuid is null: " + obj_data
-             log_errors(errMsg)
-             failedInsertsAudit(obj_data)
-             data_string = json.dumps({'Status' : 'Failed', 'Details' : 'Error retrieving UUID'},indent=4)
-             webstatus = '503 Service Unavailable'
-           else:
-             cursor.execute(OBJECT_QUERY_UUID_INSERT % (uuid, objid, objname,
+                if results == None:
+                    uuid = get_uuid(obj_data)
+
+                    if uuid == None:
+                        errMsg = "Objuuid is null: " + obj_data
+                        log_errors(errMsg)
+                        failedInsertsAudit(obj_data)
+                        data_string = json.dumps({'Status': 'Failed',
+                                                 'Details': 'Error retrieving UUID'}, indent=4)
+                        webstatus = '503 Service Unavailable'
+                    else:
+                        cursor.execute(
+                            OBJECT_QUERY_UUID_INSERT % (uuid, objid, objname,
                                                         objdesc))
-             uid = str(uuid)
-             infoMsg = "Object created: " + " " + uid
-             log_info(infoMsg)
-             data_string = json.dumps({'UUID' : uid}, indent=4)
-             webstatus = '200 OK'
+                        uid = str(uuid)
+                        infoMsg = "Object created: " + " " + uid
+                        log_info(infoMsg)
+                        data_string = json.dumps({'UUID': uid}, indent=4)
+                        webstatus = '200 OK'
 
-         else:
-           for value in results:
-             uid = str(value)
-             infoMsg = "Lookup: Object Exists" + " " + uid
-             log_info(infoMsg)  
-             data_string = json.dumps({'UUID' : uid})
-             webstatus = '200 OK'
+                else:
+                    for value in results:
+                        uid = str(value)
+                        infoMsg = "Lookup: Object Exists" + " " + uid
+                        log_info(infoMsg)
+                        data_string = json.dumps({'UUID': uid})
+                        webstatus = '200 OK'
+                cursor.close()
 
-         cursor.close()
+            except Exception, e:
+                errMsg = "MySQL DB Exception: " + " " + \
+                    str(e) + " " + obj_data
+                log_exception(errMsg)
+                failedInsertsAudit(obj_data)
 
-       except Exception, e:
+                data_string = json.dumps({'Status': 'Failed',
+                                          'Details': 'MySQL Exception. Failed to retrieve data'}, indent=4)
+                webstatus = '500 Internal Server Error'
 
-         errMsg = "MySQL DB Exception: " + " " + str(e) +  " " + obj_data
-         log_exception(errMsg)
-         failedInsertsAudit(obj_data)
+        else:
+            errMsg = "Null Exception: service_object_id cannot be null " + \
+                obj_data
+            log_exception(errMsg)
 
-         data_string = json.dumps({'Status' : 'Failed',
-                                   'Details' : 'MySQL Exception. Failed to retrieve data'}, indent=4)
-         webstatus = '500 Internal Server Error'
-   
-     else:
-       errMsg = "Null Exception: service_object_id cannot be null " + obj_data
-       log_exception(errMsg)
+            data_string = json.dumps(
+                {'Status': 'Failed', 'Details': 'Null Exception. service_object_id cannot be null'}, indent=4)
+            webstatus = '500 Internal Server Error'
 
-       data_string = json.dumps({'Status' : 'Failed','Details':'Null Exception. service_object_id cannot be null'}, indent=4)
-       webstatus = '500 Internal Server Error'
-  
-   else:
-     data_string = json.dumps({'Status' : 'Failed', 'Details' : 'Incorrect HTTP METHOD'}, indent=4)
-     webstatus = '405 Method Not Allowed'
+    else:
+        data_string = json.dumps({'Status': 'Failed', 'Details':
+                                 'Incorrect HTTP METHOD'}, indent=4)
+        webstatus = '405 Method Not Allowed'
 
+    response_headers = [('Content-type', 'application/json')]
+    start_response(webstatus, response_headers)
+    return (data_string)
 
-   response_headers = [('Content-type', 'application/json')]
-   start_response(webstatus, response_headers)
-   return (data_string)
 
 def get_uuid(obj_data):
+    return uuid.uuid1().int >> 64
 
-   host = 'localhost'
-   port = 7610
+    # host = 'localhost'
+    # port = 7610
 
-   try:
-     socket = TSocket.TSocket(host, port)
-     transport = TTransport.TFramedTransport(socket)
-     protocol = TBinaryProtocol.TBinaryProtocol(transport)
-     client = Snowflake.Client(protocol)
-     trans_out = transport.open()
+    # try:
+    #   socket = TSocket.TSocket(host, port)
+    #   transport = TTransport.TFramedTransport(socket)
+    #   protocol = TBinaryProtocol.TBinaryProtocol(transport)
+    #   client = Snowflake.Client(protocol)
+    #   trans_out = transport.open()
 
-     timestmp = client.get_timestamp()
-     id = client.get_id("provenanceAPI")
+    #   timestmp = client.get_timestamp()
+    #   id = client.get_id("provenanceAPI")
 
-     snflake_data = "[" + str(socket) + "," + str(transport) + "," + str(protocol) + "," + str(client) + "," + str(trans_out) + "," + str(timestmp) + "," + str(id) + "]"
-     infoMsg = snflake_data + " " + obj_data
-     log_info(infoMsg)
- 
-     return id
-   except Exception, e:
-     errMsg = "Snowflake Server exception: " + str(e) + " " + obj_data
-     log_exception(errMsg)
-     failedInsertsAudit(obj_data)
+    #   snflake_data = "[" + str(socket) + "," + str(transport) + "," + str(protocol) + "," + str(client) + "," + str(trans_out) + "," + str(timestmp) + "," + str(id) + "]"
+    #   infoMsg = snflake_data + " " + obj_data
+    #   log_info(infoMsg)
+
+    #   return id
+    # except Exception, e:
+    #   errMsg = "Snowflake Server exception: " + str(e) + " " + obj_data
+    #   log_exception(errMsg)
+    #   failedInsertsAudit(obj_data)
 
 
 def failedInsertsAudit(data):
-  curr_time = datetime.datetime.now()
-  insertfile = open(OBJECT_FAILED_INSERTS_FILE,"a")
-  insertfile.write(str(curr_time) + " " + data + "\n")
-  insertfile.close()
+    curr_time = datetime.datetime.now()
+    insertfile = open(OBJECT_FAILED_INSERTS_FILE, "a")
+    insertfile.write(str(curr_time) + " " + data + "\n")
+    insertfile.close()
