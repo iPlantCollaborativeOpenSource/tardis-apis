@@ -87,52 +87,7 @@ def application(environ, start_response):
     req = Request(environ)
 
     if (req.method == 'POST'):
-
-        uuid = req.params.get('uuid')
-        service_name = req.params.get('service_name')
-        category_name = req.params.get('category_name')
-        event_name = req.params.get('event_name')
-        username = req.params.get('username')
-        proxy_username = req.params.get('proxy_username')
-        event_data = req.params.get('event_data')
-        request_ipaddress = req.remote_addr
-        track_history = req.params.get('track_history')
-        track_history_code = req.params.get('track_history_code')
-        created_date = get_date_time()
-        version = req.params.get('version')
-
-        # if the above was an object, a json.dumps() call would create this
-        # same string that is being contenated
-        all_data = ("{" + str(uuid) + "," + str(service_name) + "," +
-                    str(category_name) + "," + str(event_name) + "," +
-                    str(username) + "," + str(proxy_username) + "," +
-                    str(event_data) + "," + str(request_ipaddress) + "," +
-                    str(created_date) + "," + str(version) + "," +
-                    str(track_history) + "," + str(track_history_code) + "}")
-        info_msg = "Received provenance request: " + all_data
-        log_info(info_msg)
-
-        validated, details = validate(uuid, service_name, category_name,
-                                      event_name, username, proxy_username,
-                                      version)
-        info_msg = "Validation:" + str(validated) + " Details: " + str(details)
-        log_info(info_msg)
-        # this is dependent truthiness, ``validated`` is either True or False
-        # so it should just be if validated, COLON.
-        if validated == 1:
-            json_data, webstatus = process_request(uuid, service_name,
-                                                   category_name, event_name,
-                                                   username, proxy_username,
-                                                   event_data,
-                                                   request_ipaddress,
-                                                   created_date, version,
-                                                   track_history,
-                                                   track_history_code)
-        else:
-            json_data = json.dumps({'result': {'Status': 'Failed',
-                                   'Details': 'Validation Failed',
-                                   'Report': details}}, indent=4)
-            webstatus = '400 Bad Request'
+        webstatus, json_data = _handle_post(req)
     else:
         webstatus = '405 Method Not Allowed'
         json_data = json.dumps({'result': {'Status': 'Failed',
@@ -148,9 +103,60 @@ def application(environ, start_response):
     return (json_data)
 
 
-def process_request(uuid, service_name, category_name, event_name, username,
-                    proxy_username, event_data, request_ipaddress,
-                    created_date, version, track_history, track_history_code):
+def _handle_post(req):
+    """Private method for handling an HTTP POST to this endpoint."""
+    uuid = req.params.get('uuid')
+    service_name = req.params.get('service_name')
+    category_name = req.params.get('category_name')
+    event_name = req.params.get('event_name')
+    username = req.params.get('username')
+    proxy_username = req.params.get('proxy_username')
+    event_data = req.params.get('event_data')
+    request_ipaddress = req.remote_addr
+    track_history = req.params.get('track_history')
+    track_history_code = req.params.get('track_history_code')
+    created_date = get_date_time()
+    version = req.params.get('version')
+
+    # if the above was an object, a json.dumps() call would create this
+    # same string that is being contenated and it would include key names
+    all_data = ("{" + str(uuid) + "," + str(service_name) + "," +
+                str(category_name) + "," + str(event_name) + "," +
+                str(username) + "," + str(proxy_username) + "," +
+                str(event_data) + "," + str(request_ipaddress) + "," +
+                str(created_date) + "," + str(version) + "," +
+                str(track_history) + "," + str(track_history_code) + "}")
+    info_msg = "Received provenance request: " + all_data
+    log_info(info_msg)
+
+    validated, details = validate(uuid, service_name, category_name,
+                                  event_name, username, proxy_username,
+                                  version)
+    info_msg = "Validation:" + str(validated) + " Details: " + str(details)
+    log_info(info_msg)
+    # this is dependent truthiness, ``validated`` is either True or False
+    # so it should just be if validated, COLON.
+    if validated == 1:
+        json_data, webstatus = process_valid_request(uuid, service_name,
+                                               category_name, event_name,
+                                               username, proxy_username,
+                                               event_data,
+                                               request_ipaddress,
+                                               created_date, version,
+                                               track_history,
+                                               track_history_code)
+    else:
+        json_data = json.dumps({'result': {'Status': 'Failed',
+                               'Details': 'Validation Failed',
+                               'Report': details}}, indent=4)
+        webstatus = '400 Bad Request'
+
+    return (webstatus, json_data)
+
+
+def process_valid_request(uuid, service_name, category_name, event_name,
+                username, proxy_username, event_data, request_ipaddress,
+                created_date, version, track_history, track_history_code):
 
     if version == None:
         version = "Default"
