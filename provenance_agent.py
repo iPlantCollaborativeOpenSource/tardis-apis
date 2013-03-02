@@ -134,9 +134,8 @@ def _handle_post(req):
                                   version)
     info_msg = "Validation:" + str(validated) + " Details: " + str(details)
     log_info(info_msg)
-    # this is dependent truthiness, ``validated`` is either True or False
-    # so it should just be if validated, COLON.
-    if validated == 1:
+
+    if validated:
         json_data, webstatus = process_valid_request(uuid, service_name,
                                                category_name, event_name,
                                                username, proxy_username,
