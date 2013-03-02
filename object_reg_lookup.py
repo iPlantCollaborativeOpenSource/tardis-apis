@@ -97,42 +97,48 @@ def application(environ, start_response):
                     host=PROV_DB_HOST, user=PROV_DB_USERNAME,
                     passwd=PROV_DB_PASSWORD, db=PROV_DB_NAME)
                 cursor = conn.cursor()
+                log_info(OBJECT_QUERY_UUID_LOOKUP % (objid))
                 cursor.execute(OBJECT_QUERY_UUID_LOOKUP % (objid))
                 results = cursor.fetchone()
+                log_info(results)
 
-                if results == None:
-                    uuid = get_uuid(obj_data)
+                if results is None:
+                    uuid_ = get_uuid(obj_data)
+                    log_info(uuid_)
 
-                    if uuid == None:
-                        errMsg = "Objuuid is null: " + obj_data
-                        log_errors(errMsg)
+                    if uuid_ == None:
+                        err_msg = "Objuuid is null: " + obj_data
+                        log_errors(err_msg)
                         failedInsertsAudit(obj_data)
                         data_string = json.dumps({'Status': 'Failed',
                                                  'Details': 'Error retrieving UUID'}, indent=4)
                         webstatus = '503 Service Unavailable'
                     else:
-                        cursor.execute(
-                            OBJECT_QUERY_UUID_INSERT % (uuid, objid, objname,
+                        log_info(OBJECT_QUERY_UUID_INSERT % (uuid_, objid,
+                                                        objname,
                                                         objdesc))
-                        uid = str(uuid)
-                        infoMsg = "Object created: " + " " + uid
-                        log_info(infoMsg)
+                        cursor.execute(
+                            OBJECT_QUERY_UUID_INSERT % (uuid_, objid, objname,
+                                                        objdesc))
+                        uid = str(uuid_)
+                        info_msg = "Object created: " + " " + uid
+                        log_info(info_msg)
                         data_string = json.dumps({'UUID': uid}, indent=4)
                         webstatus = '200 OK'
 
                 else:
                     for value in results:
                         uid = str(value)
-                        infoMsg = "Lookup: Object Exists" + " " + uid
-                        log_info(infoMsg)
+                        info_msg = "Lookup: Object Exists" + " " + uid
+                        log_info(info_msg)
                         data_string = json.dumps({'UUID': uid})
                         webstatus = '200 OK'
                 cursor.close()
 
             except Exception, e:
-                errMsg = "MySQL DB Exception: " + " " + \
+                err_msg = "MySQL DB Exception: " + " " + \
                     str(e) + " " + obj_data
-                log_exception(errMsg)
+                log_exception(err_msg)
                 failedInsertsAudit(obj_data)
 
                 data_string = json.dumps({'Status': 'Failed',
@@ -140,9 +146,9 @@ def application(environ, start_response):
                 webstatus = '500 Internal Server Error'
 
         else:
-            errMsg = "Null Exception: service_object_id cannot be null " + \
+            err_msg = "Null Exception: service_object_id cannot be null " + \
                 obj_data
-            log_exception(errMsg)
+            log_exception(err_msg)
 
             data_string = json.dumps(
                 {'Status': 'Failed', 'Details': 'Null Exception. service_object_id cannot be null'}, indent=4)
@@ -159,7 +165,7 @@ def application(environ, start_response):
 
 
 def get_uuid(obj_data):
-    return uuid.uuid1().int >> 64
+    return uuid.uuid1().int >> 66
 
     # host = 'localhost'
     # port = 7610
@@ -175,13 +181,13 @@ def get_uuid(obj_data):
     #   id = client.get_id("provenanceAPI")
 
     #   snflake_data = "[" + str(socket) + "," + str(transport) + "," + str(protocol) + "," + str(client) + "," + str(trans_out) + "," + str(timestmp) + "," + str(id) + "]"
-    #   infoMsg = snflake_data + " " + obj_data
-    #   log_info(infoMsg)
+    #   info_msg = snflake_data + " " + obj_data
+    #   log_info(info_msg)
 
     #   return id
     # except Exception, e:
-    #   errMsg = "Snowflake Server exception: " + str(e) + " " + obj_data
-    #   log_exception(errMsg)
+    #   err_msg = "Snowflake Server exception: " + str(e) + " " + obj_data
+    #   log_exception(err_msg)
     #   failedInsertsAudit(obj_data)
 
 
