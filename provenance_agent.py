@@ -378,7 +378,7 @@ def process_valid_request(uuid, service_name, category_name, event_name,
                 failedInsertsAudit(all_data)
                 return (data, webstatus)
 
-        except Exception, exc:
+        except Exception as exc:
             err_msg = "EXCEPTION: " + str(exc) + ": " + all_data
             log_exception(err_msg)
             audit_insert = cursor.execute(
