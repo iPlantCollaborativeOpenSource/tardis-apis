@@ -231,10 +231,15 @@ def get_uuid(obj_data):
     # except Exception, e:
     #   err_msg = "Snowflake Server exception: " + str(e) + " " + obj_data
     #   log_exception(err_msg)
-    #   failedInsertsAudit(obj_data)
+    #   failed_inserts_audit(obj_data)
 
 
-def failedInsertsAudit(data):
+def failed_inserts_audit(data):
+    """Creates an audit entry for every insertion operation that fails.
+
+    This log is stored at ``OBJECT_FAILED_INSERTS_FILE`` and will be
+    used by the ``audit_script.py`` (which is intended to run as a
+    crontab)."""
     curr_time = datetime.datetime.now()
     insertfile = open(OBJECT_FAILED_INSERTS_FILE, "a")
     insertfile.write(str(curr_time) + " " + data + "\n")
