@@ -43,24 +43,11 @@
 # Date: 10/11/2012
 #
 
-import os
-import subprocess
-from subprocess import PIPE
-import string
-import httplib
-import urllib
-from urlparse import urlparse
-import fileinput
+
 import sys
 import datetime
-import time
-import smtplib
 import MySQLdb
-from email.MIMEText import MIMEText
-import webob
-from webob import Request, Response
-import logging
-import site
+from webob import Request
 import json
 import uuid
 # from thrift.transport import TTransport
