@@ -61,85 +61,44 @@ import uuid
 CONFIG_PATH = '/scripts'
 
 sys.path.append(CONFIG_PATH)
-from db_queries import *
-from configs import *
-from prov_logging import *
+from db_queries import (OBJECT_QUERY_UUID_INSERT, OBJECT_QUERY_UUID_LOOKUP)
+from configs import (OBJECT_FAILED_INSERTS_FILE, PROV_DB_HOST, PROV_DB_NAME,
+                    PROV_DB_USERNAME, PROV_DB_PASSWORD)
+from prov_logging import log_errors, log_exception, log_info
 
-
+# File under: things I'm thinking about on Saturday Night...
+# the registration should be scoped to the service-id, right?
+# consider this:
+#  - Atmosphere registers an object with ``service_object_id`` of 16
+#  - The DE tries to register an object with the same id, 16, and gets
+#    back the UUID associated with the Atmosphere object
+#
+# is this "interning" of objects expected?
+#
+# I don't think this can be correct because the associated object_name
+# and object_desc will be that of the Atmosphere request/call and not
+# that of the DE call which means that when the object is looked up &
+# displayed in the DE history, it'll be wrong.
 def application(environ, start_response):
+    """Endpoint for easy registration of provenance objects.
 
+    It will perform the lookup, if the object does not exists, it will
+    register the object return the UUID value.
+
+    Call returns UUID if the object is found else, returns 404 NOT FOUND
+    is the status code for the response.
+
+    Query String parameters:
+    ``service_object_id`` - object identifier (used as primary key)
+    ``object_name`` - name of the object
+    ``object_desc`` - description of the object
+
+    Note: if the object exists, the parameters ``object_name`` and
+    ``object_desc`` are ignored and the existing UUID is returned.
+    """
     req = Request(environ)
     if (req.method == 'POST'):
-
-        objid = req.params.get('service_object_id')
-        objname = req.params.get('object_name')
-        objdesc = req.params.get('object_desc')
-
-        obj_data = "[" + str(objid) + "," + str(objname) + "," + \
-            str(objdesc) + "]"
-
-        if objid != None:
-            try:
-                conn = MySQLdb.connect(
-                    host=PROV_DB_HOST, user=PROV_DB_USERNAME,
-                    passwd=PROV_DB_PASSWORD, db=PROV_DB_NAME)
-                cursor = conn.cursor()
-                log_info(OBJECT_QUERY_UUID_LOOKUP % (objid))
-                cursor.execute(OBJECT_QUERY_UUID_LOOKUP % (objid))
-                results = cursor.fetchone()
-                log_info(results)
-
-                if results is None:
-                    uuid_ = get_uuid(obj_data)
-                    log_info(uuid_)
-
-                    if uuid_ == None:
-                        err_msg = "Objuuid is null: " + obj_data
-                        log_errors(err_msg)
-                        failedInsertsAudit(obj_data)
-                        data_string = json.dumps({'Status': 'Failed',
-                                                 'Details': 'Error retrieving UUID'}, indent=4)
-                        webstatus = '503 Service Unavailable'
-                    else:
-                        log_info(OBJECT_QUERY_UUID_INSERT % (uuid_, objid,
-                                                        objname,
-                                                        objdesc))
-                        cursor.execute(
-                            OBJECT_QUERY_UUID_INSERT % (uuid_, objid, objname,
-                                                        objdesc))
-                        uid = str(uuid_)
-                        info_msg = "Object created: " + " " + uid
-                        log_info(info_msg)
-                        data_string = json.dumps({'UUID': uid}, indent=4)
-                        webstatus = '200 OK'
-
-                else:
-                    for value in results:
-                        uid = str(value)
-                        info_msg = "Lookup: Object Exists" + " " + uid
-                        log_info(info_msg)
-                        data_string = json.dumps({'UUID': uid})
-                        webstatus = '200 OK'
-                cursor.close()
-
-            except Exception, e:
-                err_msg = "MySQL DB Exception: " + " " + \
-                    str(e) + " " + obj_data
-                log_exception(err_msg)
-                failedInsertsAudit(obj_data)
-
-                data_string = json.dumps({'Status': 'Failed',
-                                          'Details': 'MySQL Exception. Failed to retrieve data'}, indent=4)
-                webstatus = '500 Internal Server Error'
-
-        else:
-            err_msg = "Null Exception: service_object_id cannot be null " + \
-                obj_data
-            log_exception(err_msg)
-
-            data_string = json.dumps(
-                {'Status': 'Failed', 'Details': 'Null Exception. service_object_id cannot be null'}, indent=4)
-            webstatus = '500 Internal Server Error'
+        data_string, webstatus = _handle_post(req)
 
     else:
         data_string = json.dumps({'Status': 'Failed', 'Details':
@@ -151,8 +110,103 @@ def application(environ, start_response):
     return (data_string)
 
 
+def _handle_post(req):
+    """Helper method that handles HTTP POST calls to the endpoint."""
+    objid = req.params.get('service_object_id')
+    objname = req.params.get('object_name')
+    objdesc = req.params.get('object_desc')
+
+    obj_data = "[" + str(objid) + "," + str(objname) + "," + \
+        str(objdesc) + "]"
+
+    if objid != None:
+        data_string, webstatus = _register_obj(objid, objname, objdesc,
+                                                obj_data)
+
+    else:
+        err_msg = "Null Exception: service_object_id cannot be null " + \
+            obj_data
+        log_exception(err_msg)
+
+        data_string = json.dumps(
+            {'Status': 'Failed', 'Details': 'Null Exception. ' +
+             'service_object_id cannot be null'}, indent=4)
+        webstatus = '500 Internal Server Error'
+
+    return data_string, webstatus
+
+
+def _register_obj(objid, objname, objdesc, obj_data):
+    """Handles registration of the given object information."""
+    try:
+        conn = MySQLdb.connect(
+            host=PROV_DB_HOST, user=PROV_DB_USERNAME,
+            passwd=PROV_DB_PASSWORD, db=PROV_DB_NAME)
+        cursor = conn.cursor()
+        log_info(OBJECT_QUERY_UUID_LOOKUP % (objid))
+        cursor.execute(OBJECT_QUERY_UUID_LOOKUP % (objid))
+        results = cursor.fetchone()
+        log_info(results)
+
+        if results is None:
+            uuid_ = get_uuid(obj_data)
+            log_info(uuid_)
+
+            if uuid_ == None:
+                log_errors("Objuuid is null: " + obj_data)
+                failed_inserts_audit(obj_data)
+                data_string = json.dumps({'Status': 'Failed',
+                                         'Details':
+                                         'Error retrieving UUID'},
+                                         indent=4)
+                webstatus = '503 Service Unavailable'
+            else:
+                log_info(OBJECT_QUERY_UUID_INSERT % (uuid_, objid,
+                                                     objname,
+                                                     objdesc))
+                cursor.execute(
+                    OBJECT_QUERY_UUID_INSERT % (uuid_, objid, objname,
+                                                objdesc))
+                uid = str(uuid_)
+                info_msg = "Object created: " + " " + uid
+                log_info(info_msg)
+                data_string = json.dumps({'UUID': uid}, indent=4)
+                webstatus = '200 OK'
+
+        else:
+            for value in results:
+                info_msg = "Lookup: Object Exists" + " " + str(value)
+                log_info(info_msg)
+                data_string = json.dumps({'UUID': str(value)})
+                webstatus = '200 OK'
+        cursor.close()
+
+    except Exception, e:
+        err_msg = "MySQL DB Exception: " + " " + \
+            str(e) + " " + obj_data
+        log_exception(err_msg)
+        failed_inserts_audit(obj_data)
+
+        data_string = json.dumps({'Status': 'Failed',
+                                  'Details': 'MySQL Exception. Failed' +
+                                  'to retrieve data'}, indent=4)
+        webstatus = '500 Internal Server Error'
+
+    return data_string, webstatus
+
+
 def get_uuid(obj_data):
-    return uuid.uuid1().int >> 66
+    """Generate and return a universal unique identifier (UUID).
+
+    In development mode, this UUID may be generated w/ Python's ``uuid``
+    module.
+
+    In production mode, the UUID should be generated by ``Snowflake``, a
+    component created by Twitter for creating robust identifiers quickly.
+    """
+    # generate a 128 bit integer and shift it 66 places to create an
+    # 18 digit  UUID
+    return int(uuid.uuid1()) >> 66
 
     # host = 'localhost'
     # port = 7610
@@ -167,7 +221,9 @@ def get_uuid(obj_data):
     #   timestmp = client.get_timestamp()
     #   id = client.get_id("provenanceAPI")
 
-    #   snflake_data = "[" + str(socket) + "," + str(transport) + "," + str(protocol) + "," + str(client) + "," + str(trans_out) + "," + str(timestmp) + "," + str(id) + "]"
+    #   snflake_data = "[" + str(socket) + "," + str(transport) + "," +
+    #                   str(protocol) + "," + str(client) + "," + str(trans_out)
+    #                   + "," + str(timestmp) + "," + str(id) + "]"
     #   info_msg = snflake_data + " " + obj_data
     #   log_info(info_msg)
 
