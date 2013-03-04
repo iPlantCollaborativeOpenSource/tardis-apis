@@ -52,6 +52,7 @@ import json
 CONFIG_PATH = '/scripts'
 
 sys.path.append(CONFIG_PATH)
+
 from db_queries import OBJECT_QUERY_UUID_LOOKUP
 from configs import (PROV_DB_HOST, PROV_DB_USERNAME, PROV_DB_PASSWORD,
                     PROV_DB_NAME, OBJECT_LOOKUP_LOGFILE)

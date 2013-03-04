@@ -40,7 +40,7 @@
 #
 #
 # Author: Sangeeta Kuchimanchi (sangeeta@iplantcollaborative.org)
-# Date: 10/11/2012 
+# Date: 10/11/2012
 #
 
 
@@ -55,7 +55,7 @@ PROV_DB_NAME = "provenance"
 
 OBJECT_FAILED_INSERTS_FILE = "/provenance-logs/audit/object_failed_inserts.txt"
 PROV_FAILED_INSERTS_FILE = "/provenance-logs/audit/prov_failed_inserts.txt"
-HISTORY_INSERT_FILE ="/provenance-logs/history/history_insert_file.txt"
+HISTORY_INSERT_FILE = "/provenance-logs/history/history_insert_file.txt"
 
 # Log Files
 

@@ -351,14 +351,14 @@ def process_valid_request(uuid, service_name, category_name, event_name,
                 webstatus = '200 OK'
                 if track_history == "1" and track_history_code == None:
                     data = json.dumps({'result': {'Status': 'Success',
-                                                  'Details': 'Provenance recorded',
-                                                  'History code': history_code}},
-                                      indent=4)
+                                    'Details': 'Provenance recorded',
+                                    'History code': history_code}},
+                                    indent=4)
                 elif track_history == None and track_history_code != None:
                     data = json.dumps({'result': {'Status': 'Success',
-                                                  'Details': 'Provenance recorded',
-                                                  'Warning': 'Track history flag is not' +
-                                                  'set but history code was sent'}},
+                                        'Details': 'Provenance recorded',
+                                        'Warning': 'Track history flag is not' +
+                                        'set but history code was sent'}},
                                       indent=4)
                 else:
                     data = json.dumps({'result': {'Status': 'Success',
@@ -371,10 +371,10 @@ def process_valid_request(uuid, service_name, category_name, event_name,
                 cursor.close()
                 webstatus = '500 Internal Server Error'
                 data = json.dumps({'result': {'Status': 'Failed', 'Details':
-                                              'Provenance not recorded', 'Report':
-                                              'More than one record found for given ' +
-                                 ' UUID. Support has been notified'}},
-                                    indent=4)
+                                'Provenance not recorded', 'Report':
+                                'More than one record found for given ' +
+                                ' UUID. Support has been notified'}},
+                                indent=4)
                 err_msg = "Duplicate UUID enery found: " + all_data
                 # notify_support
                 log_errors(err_msg)

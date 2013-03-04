@@ -234,6 +234,8 @@ def get_uuid(obj_data):
     #   failed_inserts_audit(obj_data)
 
 
+### why is this different? Are we just logging to a different file, so
+### this is really duplicate code...
 def failed_inserts_audit(data):
     """Creates an audit entry for every insertion operation that fails.
 
