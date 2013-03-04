@@ -47,8 +47,8 @@
 # Provenance Database
 
 PROV_DB_HOST = "localhost"
-PROV_DB_USERNAME = "admin"
-PROV_DB_PASSWORD = ""
+PROV_DB_USERNAME = "tardis"
+PROV_DB_PASSWORD = "S0N1Cscr3wdr1V3r"
 PROV_DB_NAME = "provenance"
 
 # Audit files
