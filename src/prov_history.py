@@ -1,4 +1,10 @@
-#!/usr/bin/python26
+#!/usr/bin/python
+
+"""
+Designed to run periodically, via a scheduler like crontab, this script
+creates and inserts history records for provenance objects that have
+request ``history trackin``.
+"""
 
 #  Copyright (c) 2011, The Arizona Board of Regents on behalf of
 #  The University of Arizona
