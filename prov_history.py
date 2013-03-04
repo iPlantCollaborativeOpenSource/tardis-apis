@@ -55,8 +55,8 @@ from db_queries import (PROV_HIST_SELECT_ID, PROV_HIST_INSERT_ID,
                         PROV_HIST_UPDATE_STATUS)
 from configs import (PROV_DB_HOST, PROV_DB_NAME, PROV_DB_USERNAME,
                     PROV_DB_PASSWORD)
-from script_tracking import (notifySupport, trackHistoryErrors,
-                            trackHistoryExceptions, trackHistoryInfo)
+from script_tracking import (notify_support, track_history_errors,
+                            track_history_exceptions, track_history_info)
 
 # might as well define this as a global
 SCRIPTNAME = "History"
@@ -104,43 +104,43 @@ def _process_single_parent_results(cursor, parent_id, parent_history_code,
                                 "child_provenance_id]:" +
                                 "[" + str(p_id) + "," + str(c_id) +
                                 "]")
-                    trackHistoryInfo(info_msg)
+                    track_history_info(info_msg)
                 else:
                     err_msg = ("Failed to update child row " +
                                 "status: [parent_provenance_id, " +
                                 "child_provenance_id]:" + "[" +
                                 str(p_id) + "," + str(c_id) + "]")
-                    trackHistoryErrors(err_msg)
-                    notifySupport(err_msg, SCRIPTNAME)
+                    track_history_errors(err_msg)
+                    notify_support(err_msg, SCRIPTNAME)
             else:
                 err_msg = ("Failed History Recording, at child row"
                          + " [parent_provenance_id, " +
                          "child_provenance_id]:" + "[" + str(p_id)
                          + "," + str(c_id) + "]")
-                trackHistoryErrors(err_msg)
-                notifySupport(err_msg, SCRIPTNAME)
+                track_history_errors(err_msg)
+                notify_support(err_msg, SCRIPTNAME)
         else:
             err_msg = ("Error in retrieving child row from " +
                         "provenance table, multiple entries or " +
                         "no entry found. [parent_provenance_id, " +
                         "child_provenance_id]: [" + str(p_id) +
                         "," + str(c_id) + "]")
-            trackHistoryErrors(err_msg)
-            notifySupport(err_msg, SCRIPTNAME)
+            track_history_errors(err_msg)
+            notify_support(err_msg, SCRIPTNAME)
 
         p_process_status = cursor.execute(PROV_HIST_UPDATE_STATUS %
                                             ('Y', p_id))
         if p_process_status == 1:
             info_msg = ("History Recorded: [parent_provenance_id]:"
                         + "[" + str(p_id) + "]")
-            trackHistoryInfo(info_msg)
+            track_history_info(info_msg)
         else:
             err_msg = ("Failed updating parent row status:" +
                         "[parent_provenance_id, " +
                         "child_provenance_id]:" + "[" + str(p_id) +
                         "," + str(c_id) + "]")
-            trackHistoryErrors(err_msg)
-            notifySupport(err_msg, SCRIPTNAME)
+            track_history_errors(err_msg)
+            notify_support(err_msg, SCRIPTNAME)
 
 
 def insert_history():
@@ -151,8 +151,8 @@ def insert_history():
         cursor = conn.cursor()
     except:
         err_msg = "Connection failed to Provenance database."
-        trackHistoryExceptions(err_msg)
-        notifySupport(err_msg, SCRIPTNAME)
+        track_history_exceptions(err_msg)
+        notify_support(err_msg, SCRIPTNAME)
 
     try:
 
@@ -189,23 +189,23 @@ def insert_history():
                     err_msg = ("Multiple entries found for parent row. " +
                                 "[parent_provenance_id]:" + "[" + str(p_id) +
                                 "]")
-                    trackHistoryExceptions(err_msg)
-                    notifySupport(err_msg, SCRIPTNAME)
+                    track_history_exceptions(err_msg)
+                    notify_support(err_msg, SCRIPTNAME)
 
                 else:
                     err_msg = ("No entry found for parent row, but history " +
                                 "tracking flag enabled. [parent_provenance_id,"
                                 + "]:" + "[" + str(p_id) + "]")
-                    trackHistoryExceptions(err_msg)
-                    notifySupport(err_msg, SCRIPTNAME)
+                    track_history_exceptions(err_msg)
+                    notify_support(err_msg, SCRIPTNAME)
         # finish up and close our cursor
         cursor.close()
 
     except Exception, exc:
         err_msg = ("Exception occured after establishing DB connection: " +
                     str(exc))
-        trackHistoryExceptions(err_msg)
-        notifySupport(err_msg, SCRIPTNAME)
+        track_history_exceptions(err_msg)
+        notify_support(err_msg, SCRIPTNAME)
         cursor.close()
 
 
@@ -215,7 +215,7 @@ def main():
         insert_history()
     except:
         err_msg = "insert_history() was not initialized"
-        notifySupport(err_msg, "History")
+        notify_support(err_msg, "History")
 
 
 if __name__ == "__main__":

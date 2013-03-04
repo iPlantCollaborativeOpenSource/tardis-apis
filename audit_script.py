@@ -63,8 +63,8 @@ from db_queries import (AUDIT_SELECT, AUDIT_UPDATE_STATUS, QUERY_ALL,
 from configs import (PROV_DB_HOST, PROV_DB_NAME, PROV_DB_USERNAME,
                     PROV_DB_PASSWORD)
 from prov_logging import (log_errors, log_exception, log_info)
-from script_tracking import (failedInsertsAudit, notifySupport,
-                            trackHistoryExceptions)
+from script_tracking import (failed_inserts_audit, notify_support,
+                            track_history_exceptions)
 
 # consider adding context to insert and update "status codes"
 #AUDIT_SUCCESS = 1
@@ -79,8 +79,8 @@ def insert_audit():
         cursor = conn.cursor()
     except:
         err_msg = "Audit: Connection failed to Provenance database."
-        trackHistoryExceptions(err_msg)
-        notifySupport(err_msg, scriptname)
+        track_history_exceptions(err_msg)
+        notify_support(err_msg, scriptname)
 
 
     try:
@@ -122,14 +122,14 @@ def insert_audit():
                             err_msg = ("Audit Update: AUDIT_UPDATE_STATUS " +
                                         "query failed" + all_data)
                             log_errors(err_msg)
-                            failedInsertsAudit(all_data)
-                            notifySupport(err_msg, scriptname)
+                            failed_inserts_audit(all_data)
+                            notify_support(err_msg, scriptname)
                     else:
                         err_msg = ("Audit: QUERY_NO_PROXY_DATA query failed" +
                                     all_data)
                         log_errors(err_msg)
-                        failedInsertsAudit(all_data)
-                        notifySupport(err_msg, scriptname)
+                        failed_inserts_audit(all_data)
+                        notify_support(err_msg, scriptname)
                 # no proxy_username case (inside the 'if len > 0')
                 elif proxy_username != None:
                     insert_status = cursor.execute(QUERY_PROXY %
@@ -147,13 +147,13 @@ def insert_audit():
                             err_msg = ("Audit Update: AUDIT_UPDATE_STATUS " +
                                         " query failed" + all_data)
                             log_errors(err_msg)
-                            failedInsertsAudit(all_data)
-                            notifySupport(err_msg, scriptname)
+                            failed_inserts_audit(all_data)
+                            notify_support(err_msg, scriptname)
                     else:
                         err_msg = "Audit: QUERY_PROXY query failed" + all_data
                         log_errors(err_msg)
-                        failedInsertsAudit(all_data)
-                        notifySupport(err_msg, scriptname)
+                        failed_inserts_audit(all_data)
+                        notify_support(err_msg, scriptname)
                 # no event_data case (inside the 'if len > 0')
                 elif event_data != None:
                     insert_status = cursor.execute(QUERY_DATA %
@@ -172,14 +172,14 @@ def insert_audit():
                             err_msg = ("Audit Update: AUDIT_UPDATE_STATUS " +
                                         "query failed" + all_data)
                             log_errors(err_msg)
-                            failedInsertsAudit(all_data)
-                            notifySupport(err_msg, scriptname)
+                            failed_inserts_audit(all_data)
+                            notify_support(err_msg, scriptname)
 
                     else:
                         err_msg = "Audit: QUERY_DATA query failed" + all_data
                         log_errors(err_msg)
-                        failedInsertsAudit(all_data)
-                        notifySupport(err_msg, scriptname)
+                        failed_inserts_audit(all_data)
+                        notify_support(err_msg, scriptname)
                 else:
                 # final else block
                     insert_status = cursor.execute(QUERY_ALL %
@@ -198,13 +198,13 @@ def insert_audit():
                             err_msg = ("Audit Update: AUDIT_UPDATE_STATUS " +
                                         "query failed" + all_data)
                             log_errors(err_msg)
-                            failedInsertsAudit(all_data)
-                            notifySupport(err_msg, scriptname)
+                            failed_inserts_audit(all_data)
+                            notify_support(err_msg, scriptname)
                     else:
                         err_msg = "Audit: QUERY_ALL query failed" + all_data
                         log_errors(err_msg)
-                        failedInsertsAudit(all_data)
-                        notifySupport(err_msg, scriptname)
+                        failed_inserts_audit(all_data)
+                        notify_support(err_msg, scriptname)
 
         # outside the if block ...
         cursor.close()
@@ -213,8 +213,8 @@ def insert_audit():
 
         err_msg = "AUDIT EXCEPTION: " + str(e) + ": " + all_data
         log_exception(err_msg)
-        failedInsertsAudit(all_data)
-        notifySupport(err_msg, scriptname)
+        failed_inserts_audit(all_data)
+        notify_support(err_msg, scriptname)
         cursor.close()
 
 def main():
@@ -226,7 +226,7 @@ def main():
         insert_audit()
     except Exception, e:
         err_msg = "insert_audit() was not initialized " + str(e)
-        notifySupport(err_msg, "Audit")
+        notify_support(err_msg, "Audit")
 
 if __name__ == "__main__":
     main()

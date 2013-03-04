@@ -63,8 +63,8 @@ from db_queries import (AUDIT_ALL, AUDIT_DATA, AUDIT_PROXY, AUDIT_NO_PROXY_DATA,
 from configs import (PROV_DB_HOST, PROV_DB_USERNAME, PROV_DB_PASSWORD,
                      PROV_DB_NAME)
 from prov_logging import log_errors, log_exception, log_info
-from script_tracking import (failedInsertsAudit, getHistoryCode,
-                             trackHistoryErrors)
+from script_tracking import (failed_inserts_audit, get_history_code,
+                             track_history_errors)
 
 
 def application(environ, start_response):
@@ -204,7 +204,7 @@ def process_valid_request(uuid, service_name, category_name, event_name,
                                                          request_ipaddress,
                                                          created_date))
                         if audit_insert != 1:
-                            failedInsertsAudit(all_data)
+                            failed_inserts_audit(all_data)
 
                 elif proxy_username != None:
                     insert_status = cursor.execute(QUERY_PROXY
@@ -227,7 +227,7 @@ def process_valid_request(uuid, service_name, category_name, event_name,
                                                          request_ipaddress,
                                                          created_date))
                         if audit_insert != 1:
-                            failedInsertsAudit(all_data)
+                            failed_inserts_audit(all_data)
 
                 elif event_data != None:
 
@@ -251,7 +251,7 @@ def process_valid_request(uuid, service_name, category_name, event_name,
                                                          request_ipaddress,
                                                          created_date))
                         if audit_insert != 1:
-                            failedInsertsAudit(all_data)
+                            failed_inserts_audit(all_data)
 
                 else:
                     insert_status = cursor.execute(QUERY_ALL
@@ -276,7 +276,7 @@ def process_valid_request(uuid, service_name, category_name, event_name,
                                                          request_ipaddress,
                                                          created_date))
                         if audit_insert != 1:
-                            failedInsertsAudit(all_data)
+                            failed_inserts_audit(all_data)
 
                 if track_history == "1":
 
@@ -305,7 +305,7 @@ def process_valid_request(uuid, service_name, category_name, event_name,
                                 err_msg = "HIST_INSERT_QUERY failed" + \
                                     history_data
                                 log_errors(err_msg)
-                                trackHistoryErrors(history_data)
+                                track_history_errors(history_data)
                         else:
                             parent_query = "Y"
                             hist_status = cursor.execute(
@@ -326,12 +326,12 @@ def process_valid_request(uuid, service_name, category_name, event_name,
                                 err_msg = "HIST_INSERT_QUERY_PARENT failed" + \
                                     history_data
                                 log_errors(err_msg)
-                                trackHistoryErrors(history_data)
+                                track_history_errors(history_data)
 
                     else:
                         history_data = str(username) + \
                             ":" + str(uuid) + ":" + str(created_date)
-                        history_code = getHistoryCode(history_data)
+                        history_code = get_history_code(history_data)
                         info_msg = "History code generated: " + \
                             str(history_code) + " " + all_data
                         log_info(info_msg)
@@ -344,7 +344,7 @@ def process_valid_request(uuid, service_name, category_name, event_name,
                         log_errors(err_msg)
                         history_data = str(
                             track_history_code) + "," + str(all_data)
-                        trackHistoryErrors(history_data)
+                        track_history_errors(history_data)
 
                 cursor.close()
 
@@ -378,7 +378,7 @@ def process_valid_request(uuid, service_name, category_name, event_name,
                 err_msg = "Duplicate UUID enery found: " + all_data
                 # notify_support
                 log_errors(err_msg)
-                failedInsertsAudit(all_data)
+                failed_inserts_audit(all_data)
                 return (data, webstatus)
 
         except Exception as exc:
@@ -389,7 +389,7 @@ def process_valid_request(uuid, service_name, category_name, event_name,
                             proxy_username, event_data, request_ipaddress,
                             created_date))
             if audit_insert != 1:
-                failedInsertsAudit(all_data)
+                failed_inserts_audit(all_data)
 
             cursor.close()
 

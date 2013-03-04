@@ -57,41 +57,40 @@ sys.path.append(CONFIG_PATH)
 from configs import (HISTORY_TRACKING_LOGFILE, PROV_FAILED_INSERTS_FILE,
                     MAIL_FROM, MAIL_TO)
 
-
 logging.basicConfig (level=logging.DEBUG,
                      format='%(asctime)s %(levelname)-8s %(message)s',
                      datefmt='%a %Y-%m-%d %H:%M:%S',
                      filename=HISTORY_TRACKING_LOGFILE)
 
 
-def getHistoryCode(query_string):
+def get_history_code(query_string):
     return base64.b64encode(query_string)
 
 
 # why aren't the functions from prov_logging used?
-def trackHistoryInfo(infodata):
+def track_history_info(infodata):
     info_msg = "History Recorded: " + " " + str(infodata)
     logging.info(info_msg)
 
 
-def trackHistoryErrors(error_data):
+def track_history_errors(error_data):
     err_msg = "History Error: " + str(error_data)
     logging.error(err_msg)
 
 
-def trackHistoryExceptions(error_data):
+def track_history_exceptions(error_data):
     errMsg = "History Exception: " + str(error_data)
     logging.debug(errMsg)
 
 
-def failedInsertsAudit(data):
+def failed_inserts_audit(data):
     curr_time = datetime.datetime.now()
     insf = open(PROV_FAILED_INSERTS_FILE,"a")
     insf.write(str(curr_time) + " " + data + "\n")
     insf.close()
 
 
-def notifySupport(msg, script):
+def notify_support(msg, script):
 
     if script == "Audit":
         message = "Audit Script: " + str(msg)
