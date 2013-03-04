@@ -1,0 +1,151 @@
+
+INSTALL on RedHat
+
+$ cat /etc/redhat-release
+CentOS release 5.8 (Final)
+
+$ wget 'http://download.fedoraproject.org/pub/epel/5/i386/epel-release-5-8.noarch.rpm'
+
+$ sudo rpm -Uvh epel-release-5-4.noarch.rpm
+$ sudo yum install git-core
+
+$ sudo yum install mysql mysql-server
+
+With the ``updates`` repository as the source, you'll end up with these versions:
+
+mysql-5.0.95-5.el5_9.x86_64
+mysql-server-5.0.95-5.el5_9.x86_64
+
+
+$ sudo yum install python26.x86_64
+$ sudo yum install python26-devel
+$ sudo yum install python-setuptools
+
+
+In /etc/httpd/conf/httpd.conf, ensure that the modules below are enabled.
+
+It if likely that mod_rewrite.so is already present. You will need to add
+the python26-mod_wsgi.so to the list (do so at the end of the long list).
+
+LoadModule rewrite_module modules/mod_rewrite.so
+
+LoadModule wsgi_module modules/python26-mod_wsgi.so
+
+And then add this to the end of httpd.conf:
+
+# WSGI Configuration
+WSGISocketPrefix /run/wsgi
+
+
+
+$ curl -O http://python-distribute.org/distribute_setup.py
+$ sudo python26 distribute_setup.py
+
+Verify that the easy_install script for python-2.6 has been installed:
+
+$ which easy_install-2.6
+
+or
+
+type ``easy_install`` and hit TAB twice and see it in the tab completion:
+
+$ easy_install
+easy_install      easy_install-2.4  easy_install-2.6
+
+$ sudo easy_install-2.6 pip
+
+$ git clone git://github.com/lenards/tardis-collector.git
+
+Inside the Tardis-Collector Git Repo is a requirements.txt that states the
+Python modules that it depends on. This can be used with ``pip install`` to
+get all dependencies installed:
+
+[tardis-collector]$ sudo pip install -r requirements.txt
+
+Downloading/unpacking MySQL-python==1.2.4 (from -r requirements.txt (line 1))
+  Downloading MySQL-python-1.2.4.zip (113kB): 113kB downloaded
+  Running setup.py egg_info for package MySQL-python
+Downloading/unpacking WebOb==1.2.3 (from -r requirements.txt (line 2))
+  Downloading WebOb-1.2.3.tar.gz (191kB): 191kB downloaded
+  Running setup.py egg_info for package WebOb
+    no previously-included directories found matching '*.pyc'
+    no previously-included directories found matching '*.pyo'
+Downloading/unpacking distribute==0.6.34 (from -r requirements.txt (line 3))
+  Downloading distribute-0.6.34.tar.gz (644kB): 644kB downloaded
+  Running setup.py egg_info for package distribute
+Downloading/unpacking readline==6.2.4.1 (from -r requirements.txt (line 4))
+  Downloading readline-6.2.4.1.tar.gz (2.3MB): 2.3MB downloaded
+  Running setup.py egg_info for package readline
+Downloading/unpacking stevedore==0.8 (from -r requirements.txt (line 5))
+  Downloading stevedore-0.8.tar.gz (94kB): 94kB downloaded
+  Running setup.py egg_info for package stevedore
+    warning: no files found matching '*.py' under directory 'tests'
+Downloading/unpacking vboxapi==1.0 (from -r requirements.txt (line 6))
+  Could not find any downloads that satisfy the requirement vboxapi==1.0 (from -r requirements.txt (line 6))
+No distributions at all found for vboxapi==1.0 (from -r requirements.txt (line 6))
+Storing complete log in /home/lenards/.pip/pip.log
+
+$ cd /opt/
+$ sudo mkdir tardis
+$ sudo chown lenards:staff tardis
+$ cd tardis/
+$ mkdir collector
+# change back to wherever the tardis-collector git repo is
+$ cd -
+
+$ sudo ln -s /opt/tardis/collector/ /scripts
+
+$ cp src/*.py /scripts/
+
+$ ls -lha /scripts/
+
+total 96K
+drwxr-xr-x 2 lenards iplant-everyone 4.0K Mar  4 13:59 .
+drwxr-xr-x 3 lenards staff           4.0K Mar  4 13:54 ..
+-rwxr-xr-x 1 lenards iplant-everyone  11K Mar  4 13:59 audit_script.py
+-rwxr-xr-x 1 lenards iplant-everyone 2.7K Mar  4 13:59 configs.py
+-rwxr-xr-x 1 lenards iplant-everyone 5.4K Mar  4 13:59 db_queries.py
+-rwxr-xr-x 1 lenards iplant-everyone 4.8K Mar  4 13:59 object_lookup.py
+-rwxr-xr-x 1 lenards iplant-everyone 9.5K Mar  4 13:59 object_reg_lookup.py
+-rw-r--r-- 1 lenards iplant-everyone  24K Mar  4 13:59 provenance_agent.py
+-rwxr-xr-x 1 lenards iplant-everyone 9.5K Mar  4 13:59 prov_history.py
+-rwxr-xr-x 1 lenards iplant-everyone 3.0K Mar  4 13:59 prov_logging.py
+-rwxr-xr-x 1 lenards iplant-everyone 3.9K Mar  4 13:59 script_tracking.py
+
+$ cd /var/log
+$ sudo mkdir tardis
+$ sudo chown -R lenards:staff tardis/
+$ cd tardis/
+$ mkdir audit
+$ mkdir history
+$ touch provenance.log
+$ touch Object-lookup.log
+$ touch audit/object_failed_inserts.txt
+$ touch audit/prov_failed_inserts.txt
+$ touch history/history_insert_file.txt
+$ touch history/history_tracking.log
+
+$ sudo ln -s /var/log/tardis/ /scripts/provenance-logs
+
+$ sudo /sbin/service mysqld start
+
+$ /usr/bin/mysqladmin -u root password 'urFAV$4rongPassword'
+$ mysql_secure_installation
+
+Change the root password? [Y/n] n
+Remove anonymous users? [Y/n] Y
+Disallow root login remotely? [Y/n] Y
+Remove test database and access to it? [Y/n] Y
+Reload privilege tables now? [Y/n] Y
+
+$ cd tardis-collector/
+$ cd sql/
+$ mysql --user=root -p < create_database.sql
+$ mysql --user=root -p < add_minimal_data.sql
+
+Move the example ``wsgi.conf`` from tardis-collector to /etc/httpd/conf.d/
+
+$ sudo /sbin/service httpd restart
+
+
+
