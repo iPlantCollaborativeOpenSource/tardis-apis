@@ -3,7 +3,6 @@ WebOb==1.2.3
 distribute==0.6.34
 readline==6.2.4.1
 stevedore==0.8
-vboxapi==1.0
 virtualenv==1.8.4
 virtualenv-clone==0.2.4
 virtualenvwrapper==3.6
