@@ -34,7 +34,7 @@ LoadModule wsgi_module modules/python26-mod_wsgi.so
 And then add this to the end of httpd.conf:
 
 # WSGI Configuration
-WSGISocketPrefix /opt/wsgi_sockets
+WSGISocketPrefix /opt/wsgi/socket
 
 
 Now - you need to make that directory...
@@ -127,6 +127,9 @@ $ touch history/history_insert_file.txt
 $ touch history/history_tracking.log
 
 $ sudo ln -s /var/log/tardis/ /scripts/provenance-logs
+$ sudo ln -s /var/log/tardis/ /provenance-logs
+
+$ chown apache:apache /
 
 $ sudo /sbin/service mysqld start
 
