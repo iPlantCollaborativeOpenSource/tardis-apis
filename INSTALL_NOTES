@@ -7,9 +7,9 @@ CentOS release 5.8 (Final)
 $ wget 'http://download.fedoraproject.org/pub/epel/5/i386/epel-release-5-8.noarch.rpm'
 
 $ sudo rpm -Uvh epel-release-5-4.noarch.rpm
-$ sudo yum install git-core
+$ sudo yum install git-core ncurses-devel
 
-$ sudo yum install mysql mysql-server
+$ sudo yum install mysql mysql-server mysql-devel
 
 With the ``updates`` repository as the source, you'll end up with these versions:
 
@@ -18,7 +18,7 @@ mysql-server-5.0.95-5.el5_9.x86_64
 
 
 $ sudo yum install python26.x86_64
-$ sudo yum install python26-devel
+$ sudo yum install python26-devel.x86_64
 $ sudo yum install python-setuptools
 
 
@@ -34,9 +34,12 @@ LoadModule wsgi_module modules/python26-mod_wsgi.so
 And then add this to the end of httpd.conf:
 
 # WSGI Configuration
-WSGISocketPrefix /run/wsgi
+WSGISocketPrefix /opt/wsgi_sockets
 
 
+Now - you need to make that directory...
+
+$ sudo mkdir /opt/wsgi_sockets
 
 $ curl -O http://python-distribute.org/distribute_setup.py
 $ sudo python26 distribute_setup.py
@@ -79,11 +82,9 @@ Downloading/unpacking readline==6.2.4.1 (from -r requirements.txt (line 4))
 Downloading/unpacking stevedore==0.8 (from -r requirements.txt (line 5))
   Downloading stevedore-0.8.tar.gz (94kB): 94kB downloaded
   Running setup.py egg_info for package stevedore
-    warning: no files found matching '*.py' under directory 'tests'
-Downloading/unpacking vboxapi==1.0 (from -r requirements.txt (line 6))
-  Could not find any downloads that satisfy the requirement vboxapi==1.0 (from -r requirements.txt (line 6))
-No distributions at all found for vboxapi==1.0 (from -r requirements.txt (line 6))
-Storing complete log in /home/lenards/.pip/pip.log
+....
+Successfully installed readline stevedore virtualenv virtualenv-clone virtualenvwrapper
+Cleaning up...
 
 $ cd /opt/
 $ sudo mkdir tardis
