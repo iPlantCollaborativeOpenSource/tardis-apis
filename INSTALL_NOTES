@@ -197,12 +197,42 @@ And then add this to the end of httpd.conf:
 # WSGI Configuration
 WSGISocketPrefix /opt/wsgi/socket
 
+For giggles, if you want to confirm the before/after edits:
+
+$ diff /etc/httpd/conf/httpd.conf /etc/httpd/conf/httpd.conf~
+200d199
+< LoadModule wsgi_module modules/python26-mod_wsgi.so
+993,995d991
+<
+< # WSGI Configuration
+< WSGISocketPrefix /opt/wsgi/socket
+\ No newline at end of file
+
+(I'm using ``emacs``, so the second argument to ``diff`` should be your favorite
+editor 'temp-edit' file character - I have zero patience for ``vim`` so I never
+remove what it is)
+
 (I don't fully understand why we're defining the socket file location for the
 WSGI module, but this was set on the PROD installation of Tardis-Collector)
 
 Now - you need to make that directory...
 
-$ sudo mkdir /opt/wsgi_sockets
+(Note, ``httpd`` will make socket files under `/opt/wsgi` with the prefix of
+``socket``, do **not** create a directory under `wsgi` called "socket")
+
+$ sudo mkdir /opt/wsgi/
+$ ls -lha /opt/wsgi
+total 12K
+drwxr-xr-x 2 root root 4.0K Mar  5 13:58 .
+drwxr-xr-x 6 root root 4.0K Mar  5 13:57 ..
+
+$ sudo chown -R apache:apache /opt/wsgi
+$ ls -lha /opt/wsgi
+total 12K
+drwxr-xr-x 2 apache apache 4.0K Mar  5 13:58 .
+drwxr-xr-x 6 root   root   4.0K Mar  5 13:57 ..
+
+(again, if you use a group membership for permission, you'll need to add `write`)
 
 ## Configuring the expected log file structure....
 
@@ -219,10 +249,44 @@ $ touch audit/prov_failed_inserts.txt
 $ touch history/history_insert_file.txt
 $ touch history/history_tracking.log
 
+To verify, it was created, do the following:
+
+$ tree /var/log/tardis
+
+/var/log/tardis
+|-- Object-lookup.log
+|-- audit
+|   |-- object_failed_inserts.txt
+|   `-- prov_failed_inserts.txt
+|-- history
+|   |-- history_insert_file.txt
+|   `-- history_tracking.log
+`-- provenance.log
+
+(Install ``tree`` and be happy =)
+
+(Below is another archifact of the current configuration, may change later...)
+
 $ sudo ln -s /var/log/tardis/ /scripts/provenance-logs
 $ sudo ln -s /var/log/tardis/ /provenance-logs
 
-$ chown apache:apache /
+Now, we need to ensure that the daemon-user that ``httpd`` runs as can write to
+these logs:
+
+$ sudo chown -R apache:apache /provenance-logs
+$ sudo chown -R apache:apache /var/log/tardis
+
+$ ls -lha /var/log/tardis/
+total 20K
+drwxr-xr-x  4 apache apache 4.0K Mar  5 13:52 .
+drwxr-xr-x 10 root   root   4.0K Mar  5 13:52 ..
+drwxr-xr-x  2 apache apache 4.0K Mar  5 13:52 audit
+drwxr-xr-x  2 apache apache 4.0K Mar  5 13:52 history
+-rw-r--r--  1 apache apache    0 Mar  5 13:52 Object-lookup.log
+-rw-r--r--  1 apache apache    0 Mar  5 13:52 provenance.log
+
+# if you use a different group than apache, ensure you give that group `write`
+$ sudo chmod -R g+w /var/log/tardis
 
 ## Configuring MySQL for fun & profit...
 
@@ -237,14 +301,109 @@ Disallow root login remotely? [Y/n] Y
 Remove test database and access to it? [Y/n] Y
 Reload privilege tables now? [Y/n] Y
 
-$ cd tardis-collector/
+$ cd {{to-git-repo/tardis-collector/}
 $ cd sql/
 $ mysql --user=root -p < create_database.sql
 $ mysql --user=root -p < add_minimal_data.sql
 
+If you want to verify the database is setup and there is data, try this:
+
+$ mysql --user=root -p
+mysql> use provenance;
+mysql> select service_name from Service;
++-------------------+
+| service_name      |
++-------------------+
+| Kahn-Data-Commons |
+| Kahn-Data-Commons |
++-------------------+
+2 rows in set (0.00 sec)
+
+## Configure Tardis-Collector
+
+$ cd /scripts/
+
+We need to get Tardis-Collector to talk to MySQL and get SMTP ``mail-to`` &
+``mail-from`` emailing...
+
+Edit ``configs.py`` to include the correct database username & password.
+
+A sample is provided here:
+
+# Provenance Database
+
+PROV_DB_HOST = "localhost"
+PROV_DB_USERNAME = "root"
+PROV_DB_PASSWORD = "thatPa$$w0rdIshouldCh4ng3"
+PROV_DB_NAME = "provenance"
+
+Then, supply the email configuration:
+
+...
+
+# Support Mail
+MAIL_FROM = ""
+MAIL_TO = ""
+
+## Finish configuring
 Move the example ``tardis-vhost.conf`` from tardis-collector/docs/config-files to /etc/httpd/conf.d/
+
+$ cd to-git-repo/tardis-collector/docs/config-files
+$ sudo cp tardis-vhost.conf /etc/httpd/conf.d/
+
+Edit the ``ServerName`` attribute to be consistent with the ``hostname``:
 
 $ sudo /sbin/service httpd restart
 
+## TEST IT!
 
+Define a variable that is our hostname for this install:
 
+$ export HOST='vm142-56.iplantc.org'
+
+Then try theses calls to the Tardis-Collector API:
+
+$ curl -X POST "http://${HOST}/lookup/dev/?service_object_id=666"
+
+Expected:
+
+{
+    "Status": "Failed",
+    "Details": "Object does not exist"
+}
+
+$ curl -X POST "http://${HOST}/register/dev/666/evilrahr/evilevil"
+
+Expected: (something like this, but the value will be different**)
+
+{
+    "UUID": "701332763025294456"
+}
+
+$ curl -X POST "http://${HOST}/lookup/dev/?service_object_id=666"
+
+Expected: (the UUID you get w/ a lookup should be *exactly* the same as the one
+you get as a response to the ``register`` call)
+
+{
+    "UUID": "701332763025294456"
+}
+
+$ export UUID='701332763025294456'
+$ curl -X POST "http://${HOST}/provenance/dev/${UUID}/lenards/Kahn-Data-Commons/edit-file/dc-action"
+
+Expected:
+
+{
+    "result": {
+        "Status": "Success",
+        "Details": "Provenance recorded"
+    }
+}
+
+## GRATZ
+
+Go High 5 someone!  It works!
+
+** It's a universally unique identifier, so you should *not* get the same value
+that I did...
