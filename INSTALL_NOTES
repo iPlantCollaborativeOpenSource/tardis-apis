@@ -1,52 +1,97 @@
 
-INSTALL on RedHat
+# INSTALL on RedHat CentOS 5.8 (Final)
 
 $ cat /etc/redhat-release
 CentOS release 5.8 (Final)
 
-$ wget 'http://download.fedoraproject.org/pub/epel/5/i386/epel-release-5-8.noarch.rpm'
+## Ensuring Host Name
+
+If you're on an instance on Atmo, you'll need to do to set the hostname in order
+to use that definiton later in your VirtualHost configuration.
+
+If you don't know if it is set, run the following:
+
+$ hostname
+
+For Atmosphere, use the value after your command prompt:
+
+[lenards@vm142-56 ~]$
+
+(So also might want to shorten it)
+
+So you'd do:
+
+$ hostname vm142-56.iplantc.org
+
+
+## Installing Package Dependencies
+
+We'll install Python 2.6 from EPEL (along with some development packages).
+
+Many Atmosphere virtual machine images have the EPEL already installed
+
+If you want to check, you can do this:
+
+$ yum list installed | grep epel
+
+If it is not installed, do the following to install EPEL:
+
+As of the time of writing this, for CentOS 5.8, the corresponding EPEL release
+was EPEL Release 5.4:
+
+$  wget 'http://mirror.chpc.utah.edu/pub/epel/5/x86_64/epel-release-5-4.noarch.rpm'
 
 $ sudo rpm -Uvh epel-release-5-4.noarch.rpm
+
+Now, you have EPEL's package repository installed and we can get going on
+installing dependencies.
+
 $ sudo yum install git-core ncurses-devel
+
+# we expect git to come from ``epel``, git will not be required once a
+# reliable bundle of the code is created...
 
 $ sudo yum install mysql mysql-server mysql-devel
 
 With the ``updates`` repository as the source, you'll end up with these versions:
 
+If you want, you can install just the architecture for your target machine:
+
+$ sudo yum install mysql.x86_64 mysql-server.x86_64 mysql-devel.x86_64
+
+For CentOS 5.8 final, I expect these packages to be installed:
 mysql-5.0.95-5.el5_9.x86_64
 mysql-server-5.0.95-5.el5_9.x86_64
 
+(the ``mysql-devel`` is required right now because ``pip install`` needs the
+headers of mysql's libraries in order to build the python egg's C dependencies)
 
-$ sudo yum install python26.x86_64
-$ sudo yum install python26-devel.x86_64
-$ sudo yum install python-setuptools
+Again, the Python 2.6 packages will be coming from EPEL:
 
+$ sudo yum install python26.x86_64 python26-devel.x86_64
+$ sudo yum install python26-mod_wsgi.x86_64
 
-In /etc/httpd/conf/httpd.conf, ensure that the modules below are enabled.
-
-It if likely that mod_rewrite.so is already present. You will need to add
-the python26-mod_wsgi.so to the list (do so at the end of the long list).
-
-LoadModule rewrite_module modules/mod_rewrite.so
-
-LoadModule wsgi_module modules/python26-mod_wsgi.so
-
-And then add this to the end of httpd.conf:
-
-# WSGI Configuration
-WSGISocketPrefix /opt/wsgi/socket
-
-
-Now - you need to make that directory...
-
-$ sudo mkdir /opt/wsgi_sockets
+One last Python infrastructure step is to grab a copy of "distribute" (a fork
+of the Python setuptools):
 
 $ curl -O http://python-distribute.org/distribute_setup.py
 $ sudo python26 distribute_setup.py
 
+Output Snippet: (~10 or so lines)
+Installing easy_install script to /usr/bin
+Installing easy_install-2.6 script to /usr/bin
+
+Installed /usr/lib/python2.6/site-packages/distribute-0.6.35-py2.6.egg
+Processing dependencies for distribute==0.6.35
+Finished processing dependencies for distribute==0.6.35
+After install bootstrap.
+Creating /usr/lib/python2.6/site-packages/setuptools-0.6c11-py2.6.egg-info
+Creating /usr/lib/python2.6/site-packages/setuptools.pth
+
 Verify that the easy_install script for python-2.6 has been installed:
 
 $ which easy_install-2.6
+/usr/bin/easy_install-2.6
 
 or
 
@@ -57,13 +102,28 @@ easy_install      easy_install-2.4  easy_install-2.6
 
 $ sudo easy_install-2.6 pip
 
+Output Snippet: (~7 or so lines)
+Adding pip 1.2.1 to easy-install.pth file
+Installing pip script to /usr/bin
+Installing pip-2.6 script to /usr/bin
+
+Installed /usr/lib/python2.6/site-packages/pip-1.2.1-py2.6.egg
+Processing dependencies for pip
+Finished processing dependencies for pip
+
+## Dealing with the Tardis Collector code...
+
 $ git clone git://github.com/lenards/tardis-collector.git
+
+So, move into the Git repository for tardis-collector.
 
 Inside the Tardis-Collector Git Repo is a requirements.txt that states the
 Python modules that it depends on. This can be used with ``pip install`` to
 get all dependencies installed:
 
-[tardis-collector]$ sudo pip install -r requirements.txt
+[tardis-collector]$ sudo pip-2.6 install -r requirements.txt
+
+Truncated Output:
 
 Downloading/unpacking MySQL-python==1.2.4 (from -r requirements.txt (line 1))
   Downloading MySQL-python-1.2.4.zip (113kB): 113kB downloaded
@@ -73,29 +133,36 @@ Downloading/unpacking WebOb==1.2.3 (from -r requirements.txt (line 2))
   Running setup.py egg_info for package WebOb
     no previously-included directories found matching '*.pyc'
     no previously-included directories found matching '*.pyo'
-Downloading/unpacking distribute==0.6.34 (from -r requirements.txt (line 3))
-  Downloading distribute-0.6.34.tar.gz (644kB): 644kB downloaded
-  Running setup.py egg_info for package distribute
-Downloading/unpacking readline==6.2.4.1 (from -r requirements.txt (line 4))
-  Downloading readline-6.2.4.1.tar.gz (2.3MB): 2.3MB downloaded
-  Running setup.py egg_info for package readline
-Downloading/unpacking stevedore==0.8 (from -r requirements.txt (line 5))
-  Downloading stevedore-0.8.tar.gz (94kB): 94kB downloaded
-  Running setup.py egg_info for package stevedore
-....
-Successfully installed readline stevedore virtualenv virtualenv-clone virtualenvwrapper
+.... (truncated...)
+  Running setup.py install for virtualenvwrapper
+    changing mode of build/scripts-2.6/virtualenvwrapper.sh from 644 to 755
+    changing mode of build/scripts-2.6/virtualenvwrapper_lazy.sh from 644 to 755
+    Skipping installation of /usr/lib/python2.6/site-packages/virtualenvwrapper/__init__.py (namespace package)
+    Installing /usr/lib/python2.6/site-packages/virtualenvwrapper-3.6-py2.6-nspkg.pth
+    changing mode of /usr/bin/virtualenvwrapper_lazy.sh to 755
+    changing mode of /usr/bin/virtualenvwrapper.sh to 755
+Successfully installed MySQL-python WebOb distribute readline stevedore virtualenv virtualenv-clone virtualenvwrapper
 Cleaning up...
 
+## Deploy the code to a "well-known" location
+
 $ cd /opt/
-$ sudo mkdir tardis
-$ sudo chown lenards:staff tardis
-$ cd tardis/
-$ mkdir collector
+$ sudo mkdir -p tardis/collector
+$ sudo chown -R apache:staff tardis
+$ ls -lha | grep tardis
+drwxr-xr-x  3 apache staff 4.0K Mar  5 13:28 tardis
+$ sudo chmod -R g+w tardis
+
 # change back to wherever the tardis-collector git repo is
 $ cd -
 
+# This is a "workaround" for some of the scripts that are _supposed_ to be
+# running as crontabs... it will likely be eliminated at some point.
 $ sudo ln -s /opt/tardis/collector/ /scripts
+$ sudo chown apache:staff /scripts/
+$ sudo chmod -R g+w /scripts/
 
+# Assuming you're in the top-level of the tardis-collector Git repo:
 $ cp src/*.py /scripts/
 
 $ ls -lha /scripts/
@@ -112,6 +179,32 @@ drwxr-xr-x 3 lenards staff           4.0K Mar  4 13:54 ..
 -rwxr-xr-x 1 lenards iplant-everyone 9.5K Mar  4 13:59 prov_history.py
 -rwxr-xr-x 1 lenards iplant-everyone 3.0K Mar  4 13:59 prov_logging.py
 -rwxr-xr-x 1 lenards iplant-everyone 3.9K Mar  4 13:59 script_tracking.py
+
+
+## Configure Apache & WSGI
+
+In /etc/httpd/conf/httpd.conf, ensure that the modules below are enabled.
+
+It if likely that mod_rewrite.so is already present. You will need to add
+the python26-mod_wsgi.so to the list (do so at the end of the long list).
+
+LoadModule rewrite_module modules/mod_rewrite.so
+
+LoadModule wsgi_module modules/python26-mod_wsgi.so
+
+And then add this to the end of httpd.conf:
+
+# WSGI Configuration
+WSGISocketPrefix /opt/wsgi/socket
+
+(I don't fully understand why we're defining the socket file location for the
+WSGI module, but this was set on the PROD installation of Tardis-Collector)
+
+Now - you need to make that directory...
+
+$ sudo mkdir /opt/wsgi_sockets
+
+## Configuring the expected log file structure....
 
 $ cd /var/log
 $ sudo mkdir tardis
@@ -131,6 +224,8 @@ $ sudo ln -s /var/log/tardis/ /provenance-logs
 
 $ chown apache:apache /
 
+## Configuring MySQL for fun & profit...
+
 $ sudo /sbin/service mysqld start
 
 $ /usr/bin/mysqladmin -u root password 'urFAV$4rongPassword'
@@ -147,7 +242,7 @@ $ cd sql/
 $ mysql --user=root -p < create_database.sql
 $ mysql --user=root -p < add_minimal_data.sql
 
-Move the example ``wsgi.conf`` from tardis-collector to /etc/httpd/conf.d/
+Move the example ``tardis-vhost.conf`` from tardis-collector/docs/config-files to /etc/httpd/conf.d/
 
 $ sudo /sbin/service httpd restart
 
