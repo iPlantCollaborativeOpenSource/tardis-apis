@@ -4,6 +4,10 @@
 $ cat /etc/redhat-release
 CentOS release 5.8 (Final)
 
+## Assumption
+
+Apache's ``httpd`` is installed and running on port 80.
+
 ## Ensuring Host Name
 
 If you're on an instance on Atmo, you'll need to do to set the hostname in order
@@ -34,7 +38,7 @@ If you want to check, you can do this:
 
 $ yum list installed | grep epel
 
-If it is not installed, do the following to install EPEL:
+If it is *not* installed, do the following to install EPEL:
 
 As of the time of writing this, for CentOS 5.8, the corresponding EPEL release
 was EPEL Release 5.4:
@@ -78,17 +82,18 @@ $ curl -O http://python-distribute.org/distribute_setup.py
 $ sudo python26 distribute_setup.py
 
 Output Snippet: (~10 or so lines)
-Installing easy_install script to /usr/bin
-Installing easy_install-2.6 script to /usr/bin
 
-Installed /usr/lib/python2.6/site-packages/distribute-0.6.35-py2.6.egg
-Processing dependencies for distribute==0.6.35
-Finished processing dependencies for distribute==0.6.35
-After install bootstrap.
-Creating /usr/lib/python2.6/site-packages/setuptools-0.6c11-py2.6.egg-info
-Creating /usr/lib/python2.6/site-packages/setuptools.pth
+  Installing easy_install script to /usr/bin
+  Installing easy_install-2.6 script to /usr/bin
 
-Verify that the easy_install script for python-2.6 has been installed:
+  Installed /usr/lib/python2.6/site-packages/distribute-0.6.35-py2.6.egg
+  Processing dependencies for distribute==0.6.35
+  Finished processing dependencies for distribute==0.6.35
+  After install bootstrap.
+  Creating /usr/lib/python2.6/site-packages/setuptools-0.6c11-py2.6.egg-info
+  Creating /usr/lib/python2.6/site-packages/setuptools.pth
+
+  Verify that the easy_install script for python-2.6 has been installed:
 
 $ which easy_install-2.6
 /usr/bin/easy_install-2.6
@@ -103,13 +108,14 @@ easy_install      easy_install-2.4  easy_install-2.6
 $ sudo easy_install-2.6 pip
 
 Output Snippet: (~7 or so lines)
-Adding pip 1.2.1 to easy-install.pth file
-Installing pip script to /usr/bin
-Installing pip-2.6 script to /usr/bin
 
-Installed /usr/lib/python2.6/site-packages/pip-1.2.1-py2.6.egg
-Processing dependencies for pip
-Finished processing dependencies for pip
+  Adding pip 1.2.1 to easy-install.pth file
+  Installing pip script to /usr/bin
+  Installing pip-2.6 script to /usr/bin
+
+  Installed /usr/lib/python2.6/site-packages/pip-1.2.1-py2.6.egg
+  Processing dependencies for pip
+  Finished processing dependencies for pip
 
 ## Dealing with the Tardis Collector code...
 
@@ -125,24 +131,24 @@ get all dependencies installed:
 
 Truncated Output:
 
-Downloading/unpacking MySQL-python==1.2.4 (from -r requirements.txt (line 1))
-  Downloading MySQL-python-1.2.4.zip (113kB): 113kB downloaded
-  Running setup.py egg_info for package MySQL-python
-Downloading/unpacking WebOb==1.2.3 (from -r requirements.txt (line 2))
-  Downloading WebOb-1.2.3.tar.gz (191kB): 191kB downloaded
-  Running setup.py egg_info for package WebOb
-    no previously-included directories found matching '*.pyc'
-    no previously-included directories found matching '*.pyo'
-.... (truncated...)
-  Running setup.py install for virtualenvwrapper
-    changing mode of build/scripts-2.6/virtualenvwrapper.sh from 644 to 755
-    changing mode of build/scripts-2.6/virtualenvwrapper_lazy.sh from 644 to 755
-    Skipping installation of /usr/lib/python2.6/site-packages/virtualenvwrapper/__init__.py (namespace package)
-    Installing /usr/lib/python2.6/site-packages/virtualenvwrapper-3.6-py2.6-nspkg.pth
-    changing mode of /usr/bin/virtualenvwrapper_lazy.sh to 755
-    changing mode of /usr/bin/virtualenvwrapper.sh to 755
-Successfully installed MySQL-python WebOb distribute readline stevedore virtualenv virtualenv-clone virtualenvwrapper
-Cleaning up...
+  Downloading/unpacking MySQL-python==1.2.4 (from -r requirements.txt (line 1))
+    Downloading MySQL-python-1.2.4.zip (113kB): 113kB downloaded
+    Running setup.py egg_info for package MySQL-python
+  Downloading/unpacking WebOb==1.2.3 (from -r requirements.txt (line 2))
+    Downloading WebOb-1.2.3.tar.gz (191kB): 191kB downloaded
+    Running setup.py egg_info for package WebOb
+      no previously-included directories found matching '*.pyc'
+      no previously-included directories found matching '*.pyo'
+  .... (truncated...)
+    Running setup.py install for virtualenvwrapper
+      changing mode of build/scripts-2.6/virtualenvwrapper.sh from 644 to 755
+      changing mode of build/scripts-2.6/virtualenvwrapper_lazy.sh from 644 to 755
+      Skipping installation of /usr/lib/python2.6/site-packages/virtualenvwrapper/__init__.py (namespace package)
+      Installing /usr/lib/python2.6/site-packages/virtualenvwrapper-3.6-py2.6-nspkg.pth
+      changing mode of /usr/bin/virtualenvwrapper_lazy.sh to 755
+      changing mode of /usr/bin/virtualenvwrapper.sh to 755
+  Successfully installed MySQL-python WebOb distribute readline stevedore virtualenv virtualenv-clone virtualenvwrapper
+  Cleaning up...
 
 ## Deploy the code to a "well-known" location
 
@@ -167,18 +173,18 @@ $ cp src/*.py /scripts/
 
 $ ls -lha /scripts/
 
-total 96K
-drwxr-xr-x 2 lenards iplant-everyone 4.0K Mar  4 13:59 .
-drwxr-xr-x 3 lenards staff           4.0K Mar  4 13:54 ..
--rwxr-xr-x 1 lenards iplant-everyone  11K Mar  4 13:59 audit_script.py
--rwxr-xr-x 1 lenards iplant-everyone 2.7K Mar  4 13:59 configs.py
--rwxr-xr-x 1 lenards iplant-everyone 5.4K Mar  4 13:59 db_queries.py
--rwxr-xr-x 1 lenards iplant-everyone 4.8K Mar  4 13:59 object_lookup.py
--rwxr-xr-x 1 lenards iplant-everyone 9.5K Mar  4 13:59 object_reg_lookup.py
--rw-r--r-- 1 lenards iplant-everyone  24K Mar  4 13:59 provenance_agent.py
--rwxr-xr-x 1 lenards iplant-everyone 9.5K Mar  4 13:59 prov_history.py
--rwxr-xr-x 1 lenards iplant-everyone 3.0K Mar  4 13:59 prov_logging.py
--rwxr-xr-x 1 lenards iplant-everyone 3.9K Mar  4 13:59 script_tracking.py
+  total 96K
+  drwxr-xr-x 2 lenards iplant-everyone 4.0K Mar  4 13:59 .
+  drwxr-xr-x 3 lenards staff           4.0K Mar  4 13:54 ..
+  -rwxr-xr-x 1 lenards iplant-everyone  11K Mar  4 13:59 audit_script.py
+  -rwxr-xr-x 1 lenards iplant-everyone 2.7K Mar  4 13:59 configs.py
+  -rwxr-xr-x 1 lenards iplant-everyone 5.4K Mar  4 13:59 db_queries.py
+  -rwxr-xr-x 1 lenards iplant-everyone 4.8K Mar  4 13:59 object_lookup.py
+  -rwxr-xr-x 1 lenards iplant-everyone 9.5K Mar  4 13:59 object_reg_lookup.py
+  -rw-r--r-- 1 lenards iplant-everyone  24K Mar  4 13:59 provenance_agent.py
+  -rwxr-xr-x 1 lenards iplant-everyone 9.5K Mar  4 13:59 prov_history.py
+  -rwxr-xr-x 1 lenards iplant-everyone 3.0K Mar  4 13:59 prov_logging.py
+  -rwxr-xr-x 1 lenards iplant-everyone 3.9K Mar  4 13:59 script_tracking.py
 
 
 ## Configure Apache & WSGI
@@ -200,13 +206,14 @@ WSGISocketPrefix /opt/wsgi/socket
 For giggles, if you want to confirm the before/after edits:
 
 $ diff /etc/httpd/conf/httpd.conf /etc/httpd/conf/httpd.conf~
-200d199
-< LoadModule wsgi_module modules/python26-mod_wsgi.so
-993,995d991
-<
-< # WSGI Configuration
-< WSGISocketPrefix /opt/wsgi/socket
-\ No newline at end of file
+
+  200d199
+  < LoadModule wsgi_module modules/python26-mod_wsgi.so
+  993,995d991
+  <
+  < # WSGI Configuration
+  < WSGISocketPrefix /opt/wsgi/socket
+  \ No newline at end of file
 
 (I'm using ``emacs``, so the second argument to ``diff`` should be your favorite
 editor 'temp-edit' file character - I have zero patience for ``vim`` so I never
@@ -253,15 +260,15 @@ To verify, it was created, do the following:
 
 $ tree /var/log/tardis
 
-/var/log/tardis
-|-- Object-lookup.log
-|-- audit
-|   |-- object_failed_inserts.txt
-|   `-- prov_failed_inserts.txt
-|-- history
-|   |-- history_insert_file.txt
-|   `-- history_tracking.log
-`-- provenance.log
+  /var/log/tardis
+  |-- Object-lookup.log
+  |-- audit
+  |   |-- object_failed_inserts.txt
+  |   `-- prov_failed_inserts.txt
+  |-- history
+  |   |-- history_insert_file.txt
+  |   `-- history_tracking.log
+  `-- provenance.log
 
 (Install ``tree`` and be happy =)
 
@@ -367,39 +374,39 @@ $ curl -X POST "http://${HOST}/lookup/dev/?service_object_id=666"
 
 Expected:
 
-{
-    "Status": "Failed",
-    "Details": "Object does not exist"
-}
+  {
+      "Status": "Failed",
+      "Details": "Object does not exist"
+  }
 
 $ curl -X POST "http://${HOST}/register/dev/666/evilrahr/evilevil"
 
 Expected: (something like this, but the value will be different**)
 
-{
-    "UUID": "701332763025294456"
-}
+  {
+      "UUID": "701332763025294456"
+  }
 
 $ curl -X POST "http://${HOST}/lookup/dev/?service_object_id=666"
 
 Expected: (the UUID you get w/ a lookup should be *exactly* the same as the one
 you get as a response to the ``register`` call)
 
-{
-    "UUID": "701332763025294456"
-}
+  {
+      "UUID": "701332763025294456"
+  }
 
 $ export UUID='701332763025294456'
 $ curl -X POST "http://${HOST}/provenance/dev/${UUID}/lenards/Kahn-Data-Commons/edit-file/dc-action"
 
 Expected:
 
-{
-    "result": {
-        "Status": "Success",
-        "Details": "Provenance recorded"
-    }
-}
+  {
+      "result": {
+          "Status": "Success",
+          "Details": "Provenance recorded"
+      }
+  }
 
 ## GRATZ
 
