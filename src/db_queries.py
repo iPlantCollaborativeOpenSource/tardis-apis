@@ -47,7 +47,7 @@
 
 OBJECT_QUERY_UUID_LOOKUP = "SELECT uuid FROM Object WHERE service_object_id='%s'"
 OBJECT_QUERY_UUID_INSERT = "INSERT INTO Object(uuid,service_object_id,object_name,object_desc) VALUES('%s', '%s', '%s', '%s')"
-
+OBJECT_QUERY_UUID_INSERT_PARENT = "INSERT INTO Object(uuid,service_object_id,object_name,object_desc,parent_uuid) VALUES('%s', '%s', '%s', '%s', '%s')"
 
 QUERY_NO_PROXY_DATA = "INSERT INTO Provenance(uuid,event_id,category_id,service_id,username,request_ipaddress,created_date) VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s')"
 QUERY_PROXY = "INSERT INTO Provenance(uuid,event_id,category_id,service_id,username,proxy_username,request_ipaddress,created_date) VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')"
