@@ -61,9 +61,10 @@ import uuid
 CONFIG_PATH = '/scripts'
 
 sys.path.append(CONFIG_PATH)
-from db_queries import (OBJECT_QUERY_UUID_INSERT, OBJECT_QUERY_UUID_LOOKUP)
+from db_queries import (OBJECT_QUERY_UUID_INSERT, OBJECT_QUERY_UUID_LOOKUP,
+                        OBJECT_QUERY_UUID_INSERT_PARENT)
 from configs import (OBJECT_FAILED_INSERTS_FILE, PROV_DB_HOST, PROV_DB_NAME,
-                    PROV_DB_USERNAME, PROV_DB_PASSWORD)
+                     PROV_DB_USERNAME, PROV_DB_PASSWORD)
 from prov_logging import log_errors, log_exception, log_info
 
 # File under: things I'm thinking about on Saturday Night...
@@ -79,6 +80,8 @@ from prov_logging import log_errors, log_exception, log_info
 # and object_desc will be that of the Atmosphere request/call and not
 # that of the DE call which means that when the object is looked up &
 # displayed in the DE history, it'll be wrong.
+
+
 def application(environ, start_response):
     """Endpoint for easy registration of provenance objects.
 
@@ -115,13 +118,14 @@ def _handle_post(req):
     objid = req.params.get('service_object_id')
     objname = req.params.get('object_name')
     objdesc = req.params.get('object_desc')
+    parent = req.params.get('parent_uuid')
 
     obj_data = "[" + str(objid) + "," + str(objname) + "," + \
-        str(objdesc) + "]"
+        str(objdesc) + str(parent) + "]"
 
     if objid != None:
         data_string, webstatus = _register_obj(objid, objname, objdesc,
-                                                obj_data)
+                                               obj_data, parent)
 
     else:
         err_msg = "Null Exception: service_object_id cannot be null " + \
@@ -136,15 +140,15 @@ def _handle_post(req):
     return data_string, webstatus
 
 
-def _register_obj(objid, objname, objdesc, obj_data):
+def _register_obj(obj_id, obj_name, obj_desc, obj_data, parent_uuid):
     """Handles registration of the given object information."""
     try:
         conn = MySQLdb.connect(
             host=PROV_DB_HOST, user=PROV_DB_USERNAME,
             passwd=PROV_DB_PASSWORD, db=PROV_DB_NAME)
         cursor = conn.cursor()
-        log_info(OBJECT_QUERY_UUID_LOOKUP % (objid))
-        cursor.execute(OBJECT_QUERY_UUID_LOOKUP % (objid))
+        log_info(OBJECT_QUERY_UUID_LOOKUP % (obj_id))
+        cursor.execute(OBJECT_QUERY_UUID_LOOKUP % (obj_id))
         results = cursor.fetchone()
         log_info(results)
 
@@ -153,7 +157,7 @@ def _register_obj(objid, objname, objdesc, obj_data):
             log_info(uuid_)
 
             if uuid_ == None:
-                log_errors("Objuuid is null: " + obj_data)
+                log_errors("Obj UUID is null: " + obj_data)
                 failed_inserts_audit(obj_data)
                 data_string = json.dumps({'Status': 'Failed',
                                          'Details':
@@ -161,18 +165,9 @@ def _register_obj(objid, objname, objdesc, obj_data):
                                          indent=4)
                 webstatus = '503 Service Unavailable'
             else:
-                log_info(OBJECT_QUERY_UUID_INSERT % (uuid_, objid,
-                                                     objname,
-                                                     objdesc))
-                cursor.execute(
-                    OBJECT_QUERY_UUID_INSERT % (uuid_, objid, objname,
-                                                objdesc))
-                uid = str(uuid_)
-                info_msg = "Object created: " + " " + uid
-                log_info(info_msg)
-                data_string = json.dumps({'UUID': uid}, indent=4)
-                webstatus = '200 OK'
-
+                data_string, webstatus = _insert_object(cursor, uuid_, obj_id,
+                                                        obj_name, obj_desc,
+                                                        parent_uuid)
         else:
             for value in results:
                 info_msg = "Lookup: Object Exists" + " " + str(value)
@@ -180,7 +175,6 @@ def _register_obj(objid, objname, objdesc, obj_data):
                 data_string = json.dumps({'UUID': str(value)})
                 webstatus = '200 OK'
         cursor.close()
-
     except Exception, e:
         err_msg = "MySQL DB Exception: " + " " + \
             str(e) + " " + obj_data
@@ -191,6 +185,29 @@ def _register_obj(objid, objname, objdesc, obj_data):
                                   'Details': 'MySQL Exception. Failed' +
                                   'to retrieve data'}, indent=4)
         webstatus = '500 Internal Server Error'
+
+    return data_string, webstatus
+
+
+def _insert_object(cursor, obj_uuid, obj_id, obj_name, obj_desc, parent_uuid):
+    """
+    Handle the insertion of a new object.
+    """
+    insert = ''
+
+    if parent_uuid is None:
+        insert = OBJECT_QUERY_UUID_INSERT % (obj_uuid, obj_id, obj_name,
+                                             obj_desc)
+    else:
+        insert = OBJECT_QUERY_UUID_INSERT_PARENT % (obj_uuid, obj_id, obj_name,
+                                                    obj_desc, parent_uuid)
+    log_info(insert)
+    cursor.execute(insert)
+
+    info_msg = "Object created: " + " " + str(obj_uuid)
+    log_info(info_msg)
+    data_string = json.dumps({'UUID': str(obj_uuid)}, indent=4)
+    webstatus = '200 OK'
 
     return data_string, webstatus
 
