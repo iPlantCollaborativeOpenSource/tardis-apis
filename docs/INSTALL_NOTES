@@ -245,7 +245,7 @@ drwxr-xr-x 6 root   root   4.0K Mar  5 13:57 ..
 
 $ cd /var/log
 $ sudo mkdir tardis
-$ sudo chown -R lenards:staff tardis/
+$ sudo chown -R apache:staff tardis/
 $ cd tardis/
 $ mkdir audit
 $ mkdir history
