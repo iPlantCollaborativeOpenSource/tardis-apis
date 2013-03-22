@@ -1,9 +1,5 @@
 MySQL-python==1.2.4
 WebOb==1.2.3
-distribute==0.6.34
-readline==6.2.4.1
-stevedore==0.8
-virtualenv==1.8.4
-virtualenv-clone==0.2.4
-virtualenvwrapper==3.6
+resolver==0.2.1
+selector==0.9.4
 wsgiref==0.1.2
