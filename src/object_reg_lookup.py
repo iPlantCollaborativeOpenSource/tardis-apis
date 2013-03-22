@@ -95,6 +95,7 @@ def application(environ, start_response):
     ``service_object_id`` - object identifier (used as primary key)
     ``object_name`` - name of the object
     ``object_desc`` - description of the object
+    ``parent_uuid`` - the UUID of the parent object (optional)
 
     Note: if the object exists, the parameters ``object_name`` and
     ``object_desc`` are ignored and the existing UUID is returned.
