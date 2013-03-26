@@ -81,7 +81,6 @@ from prov_logging import log_errors, log_exception, log_info
 # that of the DE call which means that when the object is looked up &
 # displayed in the DE history, it'll be wrong.
 
-
 def application(environ, start_response):
     """Endpoint for easy registration of provenance objects.
 
@@ -91,18 +90,27 @@ def application(environ, start_response):
     Call returns UUID if the object is found else, returns 404 NOT FOUND
     is the status code for the response.
 
-    Query String parameters:
+    Keyword Arguments Defined:
     ``service_object_id`` - object identifier (used as primary key)
     ``object_name`` - name of the object
     ``object_desc`` - description of the object
     ``parent_uuid`` - the UUID of the parent object (optional)
 
+    For more information on the arguments, see the URL definition in
+    ``police_box.py``.
+
     Note: if the object exists, the parameters ``object_name`` and
     ``object_desc`` are ignored and the existing UUID is returned.
     """
     req = Request(environ)
+
+    # request got routed to us, let's grab the args associated
+    args, kwargs = environ['wsgiorg.routing_args']
+    if (len(args) > 0):
+        log_info('We should not have positional arguments: ' + args)
+
     if (req.method == 'POST'):
-        data_string, webstatus = _handle_post(req)
+        data_string, webstatus = _handle_post(kwargs)
 
     else:
         data_string = json.dumps({'Status': 'Failed', 'Details':
@@ -114,12 +122,12 @@ def application(environ, start_response):
     return (data_string)
 
 
-def _handle_post(req):
+def _handle_post(req_args):
     """Helper method that handles HTTP POST calls to the endpoint."""
-    objid = req.params.get('service_object_id')
-    objname = req.params.get('object_name')
-    objdesc = req.params.get('object_desc')
-    parent = req.params.get('parent_uuid')
+    objid = req_args['object_id']
+    objname = req_args['object_name']
+    objdesc = req_args['object_desc']
+    parent = req_args['parent_uuid']
 
     obj_data = "[" + str(objid) + "," + str(objname) + "," + \
         str(objdesc) + str(parent) + "]"
