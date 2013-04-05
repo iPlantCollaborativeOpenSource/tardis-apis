@@ -10,6 +10,7 @@ from selector import Selector
 from configs import ENDPT_PREFIX
 from object_lookup import application as lookup
 from provenance_agent import application as provenance
+from provenance_post import application as prov_post
 from object_reg_lookup import application as register
 
 __all__ = ['app']
@@ -38,3 +39,6 @@ app.add(ENDPT_PREFIX +
 app.add(ENDPT_PREFIX +
     '/provenance/{uuid:word}/{username}/{service_name}/' +
     '{event_name}/{category_name}[/]', POST=provenance)
+app.add(ENDPT_PREFIX +
+    '/provenance/{service_name}/{event_name}/{category_name}[/]',
+    POST=prov_post)
