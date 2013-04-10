@@ -1,4 +1,4 @@
 tardis-analytics
 ================
 
-Tracking and Retreiving Data Interface Service, iPlant's provenance analytics api
+Tracking and Retreiving Data Interface Service, iPlant's Provenance Analyzer API
