@@ -1,0 +1,47 @@
+# object reg lookup
+
+curl -v -X POST 'http://127.0.0.1:8000/?service_object_id=25&object_name=anything'
+
+{
+    "UUID": "783021777197335672"
+}
+
+
+curl -v -X POST 'http://127.0.0.1:8000/?service_object_id=16&object_name=rahr3'
+
+{
+    "UUID": "1228503635264930936"
+}
+
+# provenance logging...
+
+ /provenance/demo?uuid=$1&username=$2&service_name=$3&event_name=$4&category_name=$5 [P,L]
+
+
+curl -v -X POST 'http://127.0.0.1:8001/?uuid=783021777197335672&username=de-irods&service_name=Kahn-Data-Commons&event_name=edit-file&category_name=dc-action&proxy_username=ndy'
+
+curl -v -X POST 'http://127.0.0.1:8001/?uuid=3750293592917083256&username=de-irods&service_name=Kahn-Data-Commons&event_name=edit-file&category_name=dc-action&proxy_username=ndy&track_history=1&track_history_code=ZGUtaXJvZHM6Mzc1MDI5MzU5MjkxNzA4MzI1NjoxMzYyNDIzMzkz'
+
+3317316851033228408
+
+curl -v -X POST 'http://127.0.0.1:8001/?uuid=3317316851033228408&username=de-irods&service_name=Kahn-Data-Commons&event_name=create-folder&category_name=dc-action&proxy_username=ndy&track_history=1'
+
+track_history_code=ZGUtaXJvZHM6MzMxNzMxNjg1MTAzMzIyODQwODoxMzYyNDI2MjU2
+
+
+curl -v -X POST 'http://127.0.0.1:8000/?service_object_id=652&object_name=child-file&parent_uuid=3317316851033228408'
+
+652
+1354144900911793272
+
+curl -v -X POST 'http://127.0.0.1:8001/?uuid=1354144900911793272&username=de-irods&service_name=Kahn-Data-Commons&event_name=create-file&category_name=dc-action&proxy_username=ndy&track_history=1&track_history_code=ZGUtaXJvZHM6MzMxNzMxNjg1MTAzMzIyODQwODoxMzYyNDI2MjU2'
+
+653
+2523812758957393016
+
+curl -v -X POST 'http://127.0.0.1:8001/?uuid=2523812758957393016&username=de-irods&service_name=Kahn-Data-Commons&event_name=create-file&category_name=dc-action&proxy_username=ndy&track_history=1&track_history_code=ZGUtaXJvZHM6MzMxNzMxNjg1MTAzMzIyODQwODoxMzYyNDI2MjU2'
+
+654
+2857781749377729656
+
+curl -v -X POST 'http://127.0.0.1:8001/?uuid=2857781749377729656&username=de-irods&service_name=Kahn-Data-Commons&event_name=create-file&category_name=dc-action&proxy_username=ndy&track_history=1&track_history_code=ZGUtaXJvZHM6MzMxNzMxNjg1MTAzMzIyODQwODoxMzYyNDI2MjU2'

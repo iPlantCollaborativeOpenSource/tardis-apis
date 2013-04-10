@@ -1,0 +1,5 @@
+MySQL-python==1.2.4
+WebOb==1.2.3
+resolver==0.2.1
+selector==0.9.4
+wsgiref==0.1.2

@@ -38,7 +38,7 @@
 #
 #
 # Author: Sangeeta Kuchimanchi (sangeeta@iplantcollaborative.org)
-# Date: 10/11/2012 
+# Date: 10/11/2012
 #
 
 --
@@ -57,11 +57,13 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
--- 
+--
 -- Create Database 'provenance'
 --
 
 CREATE DATABASE /*!32312 IF NOT EXISTS*/ `provenance` /*!40100 DEFAULT CHARACTER SET utf8 */;
+
+USE `provenance`;
 
 --
 -- Table structure for table `Category`
@@ -72,8 +74,8 @@ DROP TABLE IF EXISTS `Category`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Category` (
   `category_id` int(11) NOT NULL auto_increment,
-  `category_name` varchar(45) character set latin1 NOT NULL,
-  `category_desc` varchar(45) character set latin1 default NULL,
+  `category_name` varchar(128) character set latin1 NOT NULL,
+  `category_desc` varchar(255) character set latin1 default NULL,
   PRIMARY KEY  (`category_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -87,8 +89,8 @@ DROP TABLE IF EXISTS `Event`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Event` (
   `event_id` int(11) NOT NULL auto_increment,
-  `event_name` varchar(45) character set latin1 NOT NULL,
-  `event_desc` varchar(45) character set latin1 default NULL,
+  `event_name` varchar(128) character set latin1 NOT NULL,
+  `event_desc` varchar(255) character set latin1 default NULL,
   PRIMARY KEY  (`event_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -103,9 +105,9 @@ DROP TABLE IF EXISTS `Object`;
 CREATE TABLE `Object` (
   `object_id` int(11) NOT NULL auto_increment,
   `uuid` bigint(20) NOT NULL,
-  `service_object_id` varchar(45) character set latin1 NOT NULL,
-  `object_name` varchar(45) character set latin1 default NULL,
-  `object_desc` varchar(45) character set latin1 default NULL,
+  `service_object_id` varchar(128) character set latin1 NOT NULL,
+  `object_name` varchar(128) character set latin1 default NULL,
+  `object_desc` varchar(355) character set latin1 default NULL,
   `parent_uuid` bigint(20) default NULL,
   PRIMARY KEY  (`object_id`),
   UNIQUE KEY `uuid_UNIQUE` (`uuid`)
@@ -121,11 +123,11 @@ DROP TABLE IF EXISTS `Service`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Service` (
   `service_id` int(11) NOT NULL auto_increment,
-  `service_name` varchar(45) character set latin1 NOT NULL,
-  `service_desc` varchar(45) character set latin1 default NULL,
-  `service_link` varchar(45) character set latin1 default NULL,
-  `service_ipaddress` varchar(45) character set latin1 default NULL,
-  `service_group` varchar(45) character set latin1 NOT NULL,
+  `service_name` varchar(128) character set latin1 NOT NULL,
+  `service_desc` varchar(255) character set latin1 default NULL,
+  `service_link` varchar(1024) character set latin1 default NULL,
+  `service_ipaddress` varchar(39) character set latin1 default NULL,
+  `service_group` varchar(64) character set latin1 NOT NULL,
   `service_type` varchar(10) NOT NULL,
   `service_version` varchar(10) NOT NULL,
   `version_status` char(1) character set utf8 collate utf8_bin NOT NULL default 'I',
@@ -148,8 +150,8 @@ CREATE TABLE `Provenance` (
   `service_id` int(11) NOT NULL,
   `username` varchar(30) character set latin1 NOT NULL,
   `proxy_username` varchar(30) character set latin1 default NULL,
-  `request_ipaddress` varchar(25) character set latin1 default NULL,
-  `event_data` varchar(65) character set latin1 default NULL,
+  `request_ipaddress` varchar(39) character set latin1 default NULL,
+  `event_data` varchar(1024) character set latin1 default NULL,
   `created_date` int(11) NOT NULL,
   PRIMARY KEY  (`provenance_id`),
   KEY `uuid` (`uuid`),
@@ -172,10 +174,10 @@ CREATE TABLE `Audit` (
   `service_id` int(11) NOT NULL,
   `category_id` int(11) NOT NULL,
   `event_id` int(11) NOT NULL,
-  `username` varchar(20) character set latin1 NOT NULL,
-  `proxy_username` varchar(20) character set latin1 default NULL,
+  `username` varchar(30) character set latin1 NOT NULL,
+  `proxy_username` varchar(30) character set latin1 default NULL,
   `event_data` varchar(75) character set latin1 default NULL,
-  `request_ipaddress` varchar(45) character set latin1 NOT NULL,
+  `request_ipaddress` varchar(39) character set latin1 NOT NULL,
   `created_date` int(11) NOT NULL,
   `processed` varchar(5) character set latin1 NOT NULL default 'N',
   PRIMARY KEY  (`id`)
@@ -214,7 +216,7 @@ CREATE TABLE `history_requests` (
   `service_id` int(11) NOT NULL,
   `category_id` int(11) NOT NULL,
   `event_id` int(11) NOT NULL,
-  `username` varchar(20) character set latin1 NOT NULL,
+  `username` varchar(30) character set latin1 NOT NULL,
   `created_date` int(11) NOT NULL,
   `parent` varchar(5) character set latin1 NOT NULL default 'N',
   `processed` varchar(5) character set latin1 NOT NULL default 'N',
