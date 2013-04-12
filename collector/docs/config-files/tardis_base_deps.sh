@@ -6,7 +6,7 @@ yum list installed | grep epel
 
 echo "EPEL should be installed..."
 
-sudo yum install git-core ncurses-devel
+sudo yum install git-core ncurses-devel tree
 sudo yum install mysql.x86_64 mysql-server.x86_64 mysql-devel.x86_64
 
 sudo yum install python26.x86_64 python26-devel.x86_64
