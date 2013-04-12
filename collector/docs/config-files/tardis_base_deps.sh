@@ -23,9 +23,9 @@ echo "... doing an easy-install of 'pip'"
 
 sudo easy_install-2.6 pip
 
-git clone git://github.com/lenards/tardis-collector.git
+git clone https://github.com/iPlantCollaborativeOpenSource/tardis-apis
 
-pushd tardis-collector/
+pushd tardis-apis/collector/
 sudo pip-2.6 install -r requirements.txt
 popd
 
@@ -44,7 +44,7 @@ sudo ln -s /opt/tardis/collector/ /scripts
 sudo chown apache:staff /scripts/
 sudo chmod -R g+w /scripts/
 
-pushd tardis-collector/
+pushd tardis-apis/collector/
 cp src/*.py /scripts/
 
 ls -lha /scripts/
@@ -55,7 +55,7 @@ sudo mkdir /opt/wsgi/
 sudo chown -R apache:apache /opt/wsgi
 ls -lha /opt/wsgi
 
-echo "... create logging files and structure" 
+echo "... create logging files and structure"
 
 pushd /var/log
 sudo mkdir tardis
