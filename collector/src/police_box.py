@@ -7,7 +7,7 @@ like a fitting name given the codenames.
 """
 
 import sys
-from selector import
+from selector import Selector
 
 # I hate this... but it'll have to do for now (alenards)
 CONFIG_PATH = '/scripts'

@@ -27,10 +27,12 @@ UUID_FIELD = re.compile(r'^[0-9]+$')
 STR_FIELD = re.compile(r'^[A-Za-z0-9\-_]+$')
 VER_FIELD = re.compile(r'^[A-Za-z0-9\.\-_]+$')
 
+
 class ProvTuple(object):
+
     """A simple grouping of request data."""
     def __init__(self, uuid_, service_name, category_name, event_name,
-                username, request_ip):
+                 username, request_ip):
         """
         Require information for logging a provenance object:
         ``uuid``, ``service_name``, ``category_name``, ``event_name``,
@@ -121,8 +123,8 @@ def application(environ, start_response):
 def _handle_post(req, req_args):
     """Private method for handling an HTTP POST to this endpoint."""
     req_tuple = ProvTuple(req_args['uuid'], req_args['service_name'],
-                        req_args['category_name'], req_args['event_name'],
-                        req_args['username'], req.remote_addr)
+                          req_args['category_name'], req_args['event_name'],
+                          req_args['username'], req.remote_addr)
     req_tuple.proxy_username = req.params.get('proxy_username')
     req_tuple.event_data = req.params.get('event_data')
     req_tuple.track_history = req.params.get('track_history')
@@ -158,7 +160,7 @@ def process_valid_request(req_tuple):
 
     event_id = get_id(req_tuple.event_name, "EVENT", req_tuple.version)
     category_id = get_id(req_tuple.category_name, "CATEGORY",
-                        req_tuple.version)
+                         req_tuple.version)
     service_id = get_id(req_tuple.service_name, "SERVICE", req_tuple.version)
 
     if event_id != "EMPTY" and category_id != "EMPTY" and service_id != "EMPTY":
@@ -176,26 +178,22 @@ def process_valid_request(req_tuple):
             if len(check_results) == 1:
 
                 if (req_tuple.proxy_username is None and
-                    req_tuple.event_data is None):
+                        req_tuple.event_data is None):
                     insert_status = cursor.execute(
-                        QUERY_NO_PROXY_DATA % (req_tuple.uuid,
-                                                req_tuple.event_id,
-                                                req_tuple.category_id,
-                                                req_tuple.service_id,
-                                                req_tuple.username,
-                                                req_tuple.request_ipaddress,
-                                                req_tuple.created_date))
+                        QUERY_NO_PROXY_DATA % (req_tuple.uuid, event_id,
+                                               category_id, service_id,
+                                               req_tuple.username,
+                                               req_tuple.request_ipaddress,
+                                               req_tuple.created_date))
                     if str(insert_status) == "1":
                         info_msg = "Success: " + all_data
                         log_info(info_msg)
                     else:
                         err_msg = "QUERY_NO_PROXY_DATA query failed" + all_data
                         log_errors(err_msg)
-                        audit_insert = cursor.execute(AUDIT_NO_PROXY_DATA
-                                                % (req_tuple.uuid,
-                                                    req_tuple.event_id,
-                                                    req_tuple.category_id,
-                                                    req_tuple.service_id,
+                        audit_insert = cursor.execute(AUDIT_NO_PROXY_DATA %
+                                                   (req_tuple.uuid, event_id,
+                                                    category_id, service_id,
                                                     req_tuple.username,
                                                     req_tuple.request_ipaddress,
                                                     req_tuple.created_date))
@@ -203,11 +201,9 @@ def process_valid_request(req_tuple):
                             failed_inserts_audit(all_data)
 
                 elif req_tuple.proxy_username != None:
-                    insert_status = cursor.execute(QUERY_PROXY
-                                                % (req_tuple.uuid,
-                                                    req_tuple.event_id,
-                                                    req_tuple.category_id,
-                                                    req_tuple.service_id,
+                    insert_status = cursor.execute(QUERY_PROXY %
+                                                    (req_tuple.uuid, event_id,
+                                                    category_id, service_id,
                                                     req_tuple.username,
                                                     req_tuple.proxy_username,
                                                     req_tuple.request_ipaddress,
@@ -218,11 +214,9 @@ def process_valid_request(req_tuple):
                     else:
                         err_msg = "QUERY_PROXY query failed" + all_data
                         log_errors(err_msg)
-                        audit_insert = cursor.execute(AUDIT_PROXY
-                                                % (req_tuple.uuid,
-                                                    req_tuple.event_id,
-                                                    req_tuple.category_id,
-                                                    req_tuple.service_id,
+                        audit_insert = cursor.execute(AUDIT_PROXY %
+                                                    (req_tuple.uuid, event_id,
+                                                    category_id, service_id,
                                                     req_tuple.username,
                                                     req_tuple.proxy_username,
                                                     req_tuple.request_ipaddress,
@@ -233,10 +227,8 @@ def process_valid_request(req_tuple):
                 elif req_tuple.event_data != None:
 
                     insert_status = cursor.execute(QUERY_DATA
-                                                   % (req_tuple.uuid,
-                                                    req_tuple.event_id,
-                                                    req_tuple.category_id,
-                                                    req_tuple.service_id,
+                                                % (req_tuple.uuid, event_id,
+                                                    category_id, service_id,
                                                     req_tuple.username,
                                                     req_tuple.event_data,
                                                     req_tuple.request_ipaddress,
@@ -248,10 +240,8 @@ def process_valid_request(req_tuple):
                         err_msg = "QUERY_DATA query failed" + all_data
                         log_errors(err_msg)
                         audit_insert = cursor.execute(AUDIT_DATA
-                                                % (req_tuple.uuid,
-                                                    req_tuple.event_id,
-                                                    req_tuple.category_id,
-                                                    req_tuple.service_id,
+                                                % (req_tuple.uuid, event_id,
+                                                    category_id, service_id,
                                                     req_tuple.username,
                                                     req_tuple.event_data,
                                                     req_tuple.request_ipaddress,
@@ -261,15 +251,13 @@ def process_valid_request(req_tuple):
 
                 else:
                     insert_status = cursor.execute(QUERY_ALL
-                                                % (req_tuple.uuid,
-                                                req_tuple.event_id,
-                                                req_tuple.category_id,
-                                                req_tuple.service_id,
-                                                req_tuple.username,
-                                                req_tuple.proxy_username,
-                                                req_tuple.event_data,
-                                                req_tuple.request_ipaddress,
-                                                req_tuple.created_date))
+                                                % (req_tuple.uuid, event_id,
+                                                  category_id, service_id,
+                                                  req_tuple.username,
+                                                  req_tuple.proxy_username,
+                                                  req_tuple.event_data,
+                                                  req_tuple.request_ipaddress,
+                                                  req_tuple.created_date))
                     if str(insert_status) == "1":
                         info_msg = "Success: " + all_data
                         log_info(info_msg)
@@ -277,10 +265,8 @@ def process_valid_request(req_tuple):
                         err_msg = "QUERY_ALL query failed" + all_data
                         log_errors(err_msg)
                         audit_insert = cursor.execute(AUDIT_ALL
-                                                    % (req_tuple.uuid,
-                                                    req_tuple.event_id,
-                                                    req_tuple.category_id,
-                                                    req_tuple.service_id,
+                                                    % (req_tuple.uuid, event_id,
+                                                    category_id, service_id,
                                                     req_tuple.username,
                                                     req_tuple.proxy_username,
                                                     req_tuple.event_data,
@@ -301,10 +287,8 @@ def process_valid_request(req_tuple):
                         if len(results) != 0:
                             hist_status = cursor.execute(HIST_INSERT_QUERY
                                             % (req_tuple.track_history_code,
-                                                req_tuple.uuid,
-                                                req_tuple.event_id,
-                                                req_tuple.category_id,
-                                                req_tuple.service_id,
+                                                req_tuple.uuid, event_id,
+                                                category_id, service_id,
                                                 req_tuple.username,
                                                 req_tuple.created_date))
                             if str(hist_status) == "1":
@@ -322,10 +306,9 @@ def process_valid_request(req_tuple):
                             hist_status = cursor.execute(
                                 HIST_INSERT_QUERY_PARENT % (
                                     req_tuple.track_history_code,
-                                    req_tuple.uuid, req_tuple.event_id,
-                                    req_tuple.category_id, req_tuple.service_id,
-                                    req_tuple.username, req_tuple.created_date,
-                                    parent_query))
+                                    req_tuple.uuid, event_id, category_id,
+                                    service_id, req_tuple.username,
+                                    req_tuple.created_date, parent_query))
                             if str(hist_status) == "1":
                                 info_msg = ("History request recorded:" + " " +
                                             str(req_tuple.track_history_code) +
@@ -395,8 +378,7 @@ def process_valid_request(req_tuple):
             err_msg = "EXCEPTION: " + str(exc) + ": " + all_data
             log_exception(err_msg)
             audit_insert = cursor.execute(
-                AUDIT_ALL % (req_tuple.uuid, req_tuple.event_id,
-                            req_tuple.category_id, req_tuple.service_id,
+                AUDIT_ALL % (req_tuple.uuid, event_id, category_id, service_id,
                             req_tuple.username, req_tuple.proxy_username,
                             req_tuple.event_data, req_tuple.request_ipaddress,
                             req_tuple.created_date))
@@ -486,9 +468,6 @@ def validate(req_tuple):
           re.match(VER_FIELD, req_tuple.version) is None):
         details = "version value is not in the correct format"
         return (False, details)
-    else: # the tuple survived the validation gauntlet, give them free passage!
+    else:  # the tuple survived the validation gauntlet, give them free passage!
         details = "Validation Passed"
         return (True, details)
-
-
-
