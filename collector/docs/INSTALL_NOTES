@@ -370,7 +370,7 @@ $ export HOST='vm142-56.iplantc.org'
 
 Then try theses calls to the Tardis-Collector API:
 
-$ curl -X POST "http://${HOST}/lookup/dev/?service_object_id=666"
+$ curl -X GET "http://${HOST}/dev/lookup/?service_object_id=666"
 
 Expected:
 
@@ -379,7 +379,7 @@ Expected:
       "Details": "Object does not exist"
   }
 
-$ curl -X POST "http://${HOST}/register/dev/666/evilrahr/evilevil"
+$ curl -X POST "http://${HOST}/dev/register/666/evilrahr/evilevil"
 
 Expected: (something like this, but the value will be different**)
 
@@ -387,7 +387,7 @@ Expected: (something like this, but the value will be different**)
       "UUID": "701332763025294456"
   }
 
-$ curl -X POST "http://${HOST}/lookup/dev/?service_object_id=666"
+$ curl -X GET "http://${HOST}/lookup/dev/?service_object_id=666"
 
 Expected: (the UUID you get w/ a lookup should be *exactly* the same as the one
 you get as a response to the ``register`` call)
