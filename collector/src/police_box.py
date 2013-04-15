@@ -6,7 +6,14 @@ The TARDIS in Doctor Box is disguised as a police call box, so it seems
 like a fitting name given the codenames.
 """
 
-from selector import Selector
+import sys
+from selector import
+
+# I hate this... but it'll have to do for now (alenards)
+CONFIG_PATH = '/scripts'
+
+sys.path.append(CONFIG_PATH)
+
 from configs import ENDPT_PREFIX
 from object_lookup import application as lookup
 from provenance_agent import application as provenance
