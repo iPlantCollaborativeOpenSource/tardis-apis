@@ -11,7 +11,7 @@ CONFIG_PATH = '/path/to/scripts'
 sys.path.append(CONFIG_PATH)
 from db_queries import QUERY_HISTORY_PARENT_DATA, QUERY_ALL_HIST_DATA
 from configs import (AYLT_DB_HOST, AYLT_DB_USERNAME, AYLT_DB_PASSWORD,
-                     AYLT_DB_NAME)
+                     AYLT_DB_NAME, AYLT_DB_PORT)
 from aylt_logging import log_errors, log_info, log_exception
 from query_builder import build_query
 
@@ -95,7 +95,8 @@ def processRequest(uuid, service_name, category_name, event_name, username,
     try:
 
         conn = MySQLdb.connect(host=AYLT_DB_HOST, user=AYLT_DB_USERNAME,
-                               passwd=AYLT_DB_PASSWORD, db=AYLT_DB_NAME)
+                               passwd=AYLT_DB_PASSWORD, db=AYLT_DB_NAME,
+                               port=AYLT_DB_PORT)
         cursor = conn.cursor()
 
         cursor.execute(query_statement, tuple(query_values))

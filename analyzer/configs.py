@@ -9,6 +9,7 @@ AYLT_DB_HOST = ""
 AYLT_DB_USERNAME = ""
 AYLT_DB_PASSWORD = ""
 AYLT_DB_NAME = ""
+AYLT_DB_PORT = 3306
 
 # Log Files
 ANALYTICS_LOGFILE = "/path/to/logfile/analytics.log"
