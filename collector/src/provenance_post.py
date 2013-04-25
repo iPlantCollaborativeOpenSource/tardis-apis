@@ -13,7 +13,7 @@ from db_queries import (AUDIT_ALL, AUDIT_DATA, AUDIT_PROXY, AUDIT_NO_PROXY_DATA,
                         QUERY_NO_PROXY_DATA, QUERY_PROXY, QUERY_SERVICE_ID,
                         QUERY_SERVICE_VERSION_ID)
 from configs import (PROV_DB_HOST, PROV_DB_USERNAME, PROV_DB_PASSWORD,
-                     PROV_DB_NAME)
+                     PROV_DB_NAME, PROV_DB_PORT)
 from prov_logging import log_errors, log_exception, log_info
 from provenance_agent import validate, ProvTuple
 from script_tracking import (failed_inserts_audit, get_history_code,

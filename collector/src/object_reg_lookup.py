@@ -20,7 +20,7 @@ sys.path.append(CONFIG_PATH)
 from db_queries import (OBJECT_QUERY_UUID_INSERT, OBJECT_QUERY_UUID_LOOKUP,
                         OBJECT_QUERY_UUID_INSERT_PARENT)
 from configs import (OBJECT_FAILED_INSERTS_FILE, PROV_DB_HOST, PROV_DB_NAME,
-                     PROV_DB_USERNAME, PROV_DB_PASSWORD)
+                     PROV_DB_USERNAME, PROV_DB_PASSWORD, PROV_DB_PORT)
 from prov_logging import log_errors, log_exception, log_info
 
 # File under: things I'm thinking about on Saturday Night...
@@ -108,9 +108,9 @@ def _handle_post(req_args):
 def _register_obj(obj_id, obj_name, obj_desc, obj_data, parent_uuid):
     """Handles registration of the given object information."""
     try:
-        conn = MySQLdb.connect(
-            host=PROV_DB_HOST, user=PROV_DB_USERNAME,
-            passwd=PROV_DB_PASSWORD, db=PROV_DB_NAME)
+        conn = MySQLdb.connect(host=PROV_DB_HOST, user=PROV_DB_USERNAME,
+                               passwd=PROV_DB_PASSWORD, db=PROV_DB_NAME,
+                               port=PROV_DB_PORT)
         cursor = conn.cursor()
         log_info(OBJECT_QUERY_UUID_LOOKUP % (obj_id))
         cursor.execute(OBJECT_QUERY_UUID_LOOKUP % (obj_id))

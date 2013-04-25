@@ -12,7 +12,7 @@ sys.path.append(CONFIG_PATH)
 
 from db_queries import OBJECT_QUERY_UUID_LOOKUP
 from configs import (PROV_DB_HOST, PROV_DB_USERNAME, PROV_DB_PASSWORD,
-                    PROV_DB_NAME, OBJECT_LOOKUP_LOGFILE)
+                    PROV_DB_NAME, PROV_DB_PORT, OBJECT_LOOKUP_LOGFILE)
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)-8s %(message)s',
@@ -31,7 +31,8 @@ def application(environ, start_response):
 
     try:
         conn = MySQLdb.connect(host=PROV_DB_HOST, user=PROV_DB_USERNAME,
-                              passwd=PROV_DB_PASSWORD, db=PROV_DB_NAME)
+                               passwd=PROV_DB_PASSWORD, db=PROV_DB_NAME,
+                               port=PROV_DB_PORT)
         cursor = conn.cursor()
         cursor.execute(OBJECT_QUERY_UUID_LOOKUP % (objid))
         results = cursor.fetchall()

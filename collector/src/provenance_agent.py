@@ -18,7 +18,7 @@ from db_queries import (AUDIT_ALL, AUDIT_DATA, AUDIT_PROXY, AUDIT_NO_PROXY_DATA,
                         QUERY_NO_PROXY_DATA, QUERY_PROXY, QUERY_SERVICE_ID,
                         QUERY_SERVICE_VERSION_ID)
 from configs import (PROV_DB_HOST, PROV_DB_USERNAME, PROV_DB_PASSWORD,
-                     PROV_DB_NAME)
+                     PROV_DB_NAME, PROV_DB_PORT)
 from prov_logging import log_errors, log_exception, log_info
 from script_tracking import (failed_inserts_audit, get_history_code,
                              track_history_errors)
@@ -168,9 +168,9 @@ def process_valid_request(req_tuple):
         all_data = str(req_tuple)
 
         try:
-            conn = MySQLdb.connect(
-                host=PROV_DB_HOST, user=PROV_DB_USERNAME,
-                passwd=PROV_DB_PASSWORD, db=PROV_DB_NAME)
+            conn = MySQLdb.connect(host=PROV_DB_HOST, user=PROV_DB_USERNAME,
+                                   passwd=PROV_DB_PASSWORD, db=PROV_DB_NAME,
+                                   port=PROV_DB_PORT)
             cursor = conn.cursor()
 
             cursor.execute(QUERY_CHECK_UUID % (req_tuple.uuid))
@@ -411,7 +411,8 @@ def get_date_time():
 def get_id(name, key, version):
     """Retrieve the identifier for a Service or Event."""
     conn = MySQLdb.connect(host=PROV_DB_HOST, user=PROV_DB_USERNAME,
-                           passwd=PROV_DB_PASSWORD, db=PROV_DB_NAME)
+                           passwd=PROV_DB_PASSWORD, db=PROV_DB_NAME,
+                           port=PROV_DB_PORT)
     cursor = conn.cursor()
 
     if key == "EVENT":

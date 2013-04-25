@@ -17,7 +17,7 @@ from db_queries import (PROV_HIST_SELECT_ID, PROV_HIST_INSERT_ID,
                         CHILD_HIST_SELECT_QUERY, PARENT_HIST_SELECT_QUERY,
                         PROV_HIST_UPDATE_STATUS)
 from configs import (PROV_DB_HOST, PROV_DB_NAME, PROV_DB_USERNAME,
-                    PROV_DB_PASSWORD)
+                     PROV_DB_PASSWORD, PROV_DB_PORT)
 from script_tracking import (notify_support, track_history_errors,
                             track_history_exceptions, track_history_info)
 
@@ -110,7 +110,8 @@ def insert_history():
     """Handles inserting history records for provenance objects."""
     try:
         conn = MySQLdb.connect(host=PROV_DB_HOST, user=PROV_DB_USERNAME,
-                                passwd=PROV_DB_PASSWORD, db=PROV_DB_NAME)
+                               passwd=PROV_DB_PASSWORD, db=PROV_DB_NAME,
+                               port=PROV_DB_PORT)
         cursor = conn.cursor()
     except:
         err_msg = "Connection failed to Provenance database."
