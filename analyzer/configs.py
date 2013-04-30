@@ -1,14 +1,15 @@
 #!/usr/bin/python26
 
 # Query values
-QUERY_VALUES = ['uuid','service_name','category_name','event_name','username','proxy_username','start_date','end_date']
-
+QUERY_VALUES = ['uuid', 'service_name', 'category_name', 'event_name',
+                'username', 'proxy_username', 'start_date', 'end_date']
 
 # Analytics Database
 AYLT_DB_HOST = ""
 AYLT_DB_USERNAME = ""
 AYLT_DB_PASSWORD = ""
 AYLT_DB_NAME = ""
+AYLT_DB_PORT = 3306
 
 # Log Files
 ANALYTICS_LOGFILE = "/path/to/logfile/analytics.log"

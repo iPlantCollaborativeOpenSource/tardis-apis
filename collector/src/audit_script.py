@@ -10,7 +10,7 @@ sys.path.append(CONFIG_PATH)
 from db_queries import (AUDIT_SELECT, AUDIT_UPDATE_STATUS, QUERY_ALL,
                         QUERY_DATA, QUERY_NO_PROXY_DATA, QUERY_PROXY)
 from configs import (PROV_DB_HOST, PROV_DB_NAME, PROV_DB_USERNAME,
-                    PROV_DB_PASSWORD)
+                    PROV_DB_PASSWORD, PROV_DB_PORT)
 from prov_logging import (log_errors, log_exception, log_info)
 from script_tracking import (failed_inserts_audit, notify_support,
                             track_history_exceptions)
@@ -24,7 +24,8 @@ def insert_audit():
 
     try:
         conn = MySQLdb.connect(host=PROV_DB_HOST, user=PROV_DB_USERNAME,
-                               passwd=PROV_DB_PASSWORD, db=PROV_DB_NAME)
+                               passwd=PROV_DB_PASSWORD, db=PROV_DB_NAME,
+                               port=PROV_DB_PORT)
         cursor = conn.cursor()
     except:
         err_msg = "Audit: Connection failed to Provenance database."

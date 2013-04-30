@@ -10,7 +10,7 @@ PROV_DB_HOST = "localhost"
 PROV_DB_USERNAME = ""
 PROV_DB_PASSWORD = ""
 PROV_DB_NAME = "provenance"
-
+PROV_DB_PORT = 3306
 
 # Audit files
 OBJECT_FAILED_INSERTS_FILE = "/provenance-logs/audit/object_failed_inserts.txt"

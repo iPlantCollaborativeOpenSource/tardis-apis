@@ -13,10 +13,9 @@ sys.path.append(CONFIG_PATH)
 from configs import (HISTORY_TRACKING_LOGFILE, PROV_FAILED_INSERTS_FILE,
                     MAIL_FROM, MAIL_TO)
 
-logging.basicConfig (level=logging.DEBUG,
-                     format='%(asctime)s %(levelname)-8s %(message)s',
-                     datefmt='%a %Y-%m-%d %H:%M:%S',
-                     filename=HISTORY_TRACKING_LOGFILE)
+logging.basicConfig(level=logging.DEBUG, datefmt='%a %Y-%m-%d %H:%M:%S',
+                    format='%(asctime)s %(levelname)-8s %(message)s',
+                    filename=HISTORY_TRACKING_LOGFILE)
 
 
 def get_history_code(query_string):
