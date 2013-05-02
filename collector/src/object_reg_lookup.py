@@ -77,6 +77,18 @@ def application(environ, start_response):
     return (data_string)
 
 
+def _stringify_object_data(srv_key, obj_id, obj_name, obj_desc, parent_uuid):
+    """
+    Creates an awkward string representation of object-regisration
+    data.
+
+    Note: evaluate this, if this implementation is retained - consider
+    removing this function.
+    """
+    return "[" + str(srv_key) + ", " + str(obj_id) + ", " + str(obj_name) + \
+           ", " + str(obj_desc) + ", " + str(parent_uuid) + "]"
+
+
 def _handle_post(req_args):
     """Helper method that handles HTTP POST calls to the endpoint."""
     srvkey = req_args['service_key']
@@ -85,8 +97,7 @@ def _handle_post(req_args):
     objdesc = req_args['object_desc']
     parent = req_args['parent_uuid']
 
-    obj_data = "[" + str(srvkey) + ", " + str(objid) + ", " + str(objname) + \
-               ", " + str(objdesc) + ", " + str(parent) + "]"
+    obj_data = _stringify_object_data(srvkey, objid, objname, objdesc, parent)
 
     if objid != None:
         data_string, webstatus = _register_obj(srvkey, objid, objname, objdesc,
@@ -103,6 +114,19 @@ def _handle_post(req_args):
         webstatus = '500 Internal Server Error'
 
     return data_string, webstatus
+
+
+def register_object(srv_key, obj_id, obj_name, obj_desc, parent_uuid):
+    """
+    Handles creating a record in the Object table and returns a tuple of
+    the response data string and the HTTP code string.
+
+    Intended to be called by functions outside this WSGI application.
+    """
+    obj_data = _stringify_object_data(srv_key, obj_id, obj_name, obj_desc,
+                                      parent_uuid)
+    return _register_obj(srv_key, obj_id, obj_name, obj_desc, obj_data,
+                         parent_uuid)
 
 
 def _register_obj(srv_key, obj_id, obj_name, obj_desc, obj_data, parent_uuid):
@@ -192,7 +216,7 @@ def failed_inserts_audit(data):
 
     This log is stored at ``OBJECT_FAILED_INSERTS_FILE`` and will be
     used by the ``audit_script.py`` (which is intended to run as a
-    crontab)."""
+    crontab and rectify failures...)."""
     curr_time = datetime.datetime.now()
     insertfile = open(OBJECT_FAILED_INSERTS_FILE, "a")
     insertfile.write(str(curr_time) + " " + data + "\n")
