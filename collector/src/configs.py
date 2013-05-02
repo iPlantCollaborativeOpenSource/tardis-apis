@@ -5,8 +5,8 @@ ENDPT_PREFIX = "/dev"
 
 # Provenance Database
 PROV_DB_HOST = "localhost"
-PROV_DB_USERNAME = "root"
-PROV_DB_PASSWORD = "WHOdoctorR4hrMD"
+PROV_DB_USERNAME = ""
+PROV_DB_PASSWORD = ""
 PROV_DB_NAME = "provenance"
 PROV_DB_PORT = 3306
 
