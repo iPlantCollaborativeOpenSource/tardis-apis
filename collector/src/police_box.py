@@ -46,7 +46,7 @@ application.add(ENDPT_PREFIX + '/hello/{name}', GET=say_hello)
 # Change to include a version number as a prefix
 application.add(ENDPT_PREFIX + '/lookup[/]', GET=lookup)
 application.add(ENDPT_PREFIX +
-    '/register/{object_id:word}/{object_name:segment}/' +
+    '/register/{service_key}/{object_id:word}/{object_name:segment}/' +
     '{object_desc:segment[/{parent_uuid:word}][/]', POST=register)
 application.add(ENDPT_PREFIX +
     '/provenance/{uuid:word}/{username}/{service_name}/' +

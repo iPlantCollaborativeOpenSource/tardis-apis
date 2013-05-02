@@ -5,23 +5,17 @@ import datetime
 import MySQLdb
 from webob import Request
 import json
-import uuid
-# from thrift.transport import TTransport
-# from thrift.transport import TSocket
-# from thrift.transport import THttpClient
-# from thrift.protocol import TBinaryProtocol
-# from genpy.Snowflake import Snowflake
-# from genpy.Snowflake import ttypes
-# from genpy.Snowflake import constants
 
 CONFIG_PATH = '/scripts'
 
 sys.path.append(CONFIG_PATH)
 from db_queries import (OBJECT_QUERY_UUID_INSERT, OBJECT_QUERY_UUID_LOOKUP,
-                        OBJECT_QUERY_UUID_INSERT_PARENT)
+                        OBJECT_QUERY_UUID_INSERT_PARENT,
+                        SERVICE_ID_FROM_KEY_QUERY)
 from configs import (OBJECT_FAILED_INSERTS_FILE, PROV_DB_HOST, PROV_DB_NAME,
                      PROV_DB_USERNAME, PROV_DB_PASSWORD, PROV_DB_PORT)
 from prov_logging import log_errors, log_exception, log_info
+from gen_uuid import get_uuid
 
 # File under: things I'm thinking about on Saturday Night...
 # the registration should be scoped to the service-id, right?
@@ -47,10 +41,15 @@ def application(environ, start_response):
     is the status code for the response.
 
     Keyword Arguments Defined:
-    ``service_object_id`` - object identifier (used as primary key)
+    ``service_key`` - shortened service alpha-numberic identifier
+    ``object_id`` - object identifier (used as a composite primary key)
     ``object_name`` - name of the object
     ``object_desc`` - description of the object
     ``parent_uuid`` - the UUID of the parent object (optional)
+
+    ``service_key`` will be used to fetch the ``service_id`` for the
+    insert, as the ``service_key`` has a 'unique' constraint on it
+    within the ``Service`` table in the ``provenance`` database.
 
     For more information on the arguments, see the URL definition in
     ``police_box.py``.
@@ -80,16 +79,17 @@ def application(environ, start_response):
 
 def _handle_post(req_args):
     """Helper method that handles HTTP POST calls to the endpoint."""
+    srvkey = req_args['service_key']
     objid = req_args['object_id']
     objname = req_args['object_name']
     objdesc = req_args['object_desc']
     parent = req_args['parent_uuid']
 
-    obj_data = "[" + str(objid) + "," + str(objname) + "," + \
-        str(objdesc) + str(parent) + "]"
+    obj_data = "[" + str(srvkey) + ", " + str(objid) + ", " + str(objname) + \
+               ", " + str(objdesc) + ", " + str(parent) + "]"
 
     if objid != None:
-        data_string, webstatus = _register_obj(objid, objname, objdesc,
+        data_string, webstatus = _register_obj(srvkey, objid, objname, objdesc,
                                                obj_data, parent)
 
     else:
@@ -105,15 +105,21 @@ def _handle_post(req_args):
     return data_string, webstatus
 
 
-def _register_obj(obj_id, obj_name, obj_desc, obj_data, parent_uuid):
+def _register_obj(srv_key, obj_id, obj_name, obj_desc, obj_data, parent_uuid):
     """Handles registration of the given object information."""
     try:
         conn = MySQLdb.connect(host=PROV_DB_HOST, user=PROV_DB_USERNAME,
                                passwd=PROV_DB_PASSWORD, db=PROV_DB_NAME,
                                port=PROV_DB_PORT)
         cursor = conn.cursor()
-        log_info(OBJECT_QUERY_UUID_LOOKUP % (obj_id))
-        cursor.execute(OBJECT_QUERY_UUID_LOOKUP % (obj_id))
+
+        log_info(SERVICE_ID_FROM_KEY_QUERY % (srv_key))
+        cursor.execute(SERVICE_ID_FROM_KEY_QUERY % (srv_key))
+        key_to_id = cursor.fetchone()
+        srv_id, = key_to_id
+
+        log_info(OBJECT_QUERY_UUID_LOOKUP % (obj_id, srv_id))
+        cursor.execute(OBJECT_QUERY_UUID_LOOKUP % (obj_id, srv_id))
         results = cursor.fetchone()
         log_info(results)
 
@@ -130,9 +136,9 @@ def _register_obj(obj_id, obj_name, obj_desc, obj_data, parent_uuid):
                                          indent=4)
                 webstatus = '503 Service Unavailable'
             else:
-                data_string, webstatus = _insert_object(cursor, uuid_, obj_id,
-                                                        obj_name, obj_desc,
-                                                        parent_uuid)
+                data_string, webstatus = _insert_object(cursor, uuid_, srv_id,
+                                                        obj_id, obj_name,
+                                                        obj_desc, parent_uuid)
         else:
             for value in results:
                 info_msg = "Lookup: Object Exists" + " " + str(value)
@@ -154,18 +160,20 @@ def _register_obj(obj_id, obj_name, obj_desc, obj_data, parent_uuid):
     return data_string, webstatus
 
 
-def _insert_object(cursor, obj_uuid, obj_id, obj_name, obj_desc, parent_uuid):
+def _insert_object(cursor, obj_uuid, srv_id, obj_id, obj_name, obj_desc,
+                   parent_uuid):
     """
     Handle the insertion of a new object.
     """
     insert = ''
 
     if parent_uuid is None:
-        insert = OBJECT_QUERY_UUID_INSERT % (obj_uuid, obj_id, obj_name,
+        insert = OBJECT_QUERY_UUID_INSERT % (obj_uuid, srv_id, obj_id, obj_name,
                                              obj_desc)
-    else:
-        insert = OBJECT_QUERY_UUID_INSERT_PARENT % (obj_uuid, obj_id, obj_name,
-                                                    obj_desc, parent_uuid)
+    else: # parent's gotta parent!
+        insert = OBJECT_QUERY_UUID_INSERT_PARENT % (obj_uuid, srv_id, obj_id,
+                                                    obj_name, obj_desc,
+                                                    parent_uuid)
     log_info(insert)
     cursor.execute(insert)
 
@@ -175,45 +183,6 @@ def _insert_object(cursor, obj_uuid, obj_id, obj_name, obj_desc, parent_uuid):
     webstatus = '200 OK'
 
     return data_string, webstatus
-
-
-def get_uuid(obj_data):
-    """Generate and return a universal unique identifier (UUID).
-
-    In development mode, this UUID may be generated w/ Python's ``uuid``
-    module.
-
-    In production mode, the UUID should be generated by ``Snowflake``, a
-    component created by Twitter for creating robust identifiers quickly.
-    """
-    # generate a 128 bit integer and shift it 66 places to create an
-    # 18 digit  UUID
-    return int(uuid.uuid1()) >> 66
-
-    # host = 'localhost'
-    # port = 7610
-
-    # try:
-    #   socket = TSocket.TSocket(host, port)
-    #   transport = TTransport.TFramedTransport(socket)
-    #   protocol = TBinaryProtocol.TBinaryProtocol(transport)
-    #   client = Snowflake.Client(protocol)
-    #   trans_out = transport.open()
-
-    #   timestmp = client.get_timestamp()
-    #   id = client.get_id("provenanceAPI")
-
-    #   snflake_data = "[" + str(socket) + "," + str(transport) + "," +
-    #                   str(protocol) + "," + str(client) + "," + str(trans_out)
-    #                   + "," + str(timestmp) + "," + str(id) + "]"
-    #   info_msg = snflake_data + " " + obj_data
-    #   log_info(info_msg)
-
-    #   return id
-    # except Exception, e:
-    #   err_msg = "Snowflake Server exception: " + str(e) + " " + obj_data
-    #   log_exception(err_msg)
-    #   failed_inserts_audit(obj_data)
 
 
 ### why is this different? Are we just logging to a different file, so

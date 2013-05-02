@@ -27,7 +27,9 @@ def application(environ, start_response):
     service (each service must be assigned a `service_object_id`)
     """
     req = Request(environ)
-    objid = req.params.get('service_object_id')
+    srv_id = req.params.get('service_id')
+    srv_key = req.params.get('service_key')
+    objid = req.params.get('object_id')
 
     try:
         conn = MySQLdb.connect(host=PROV_DB_HOST, user=PROV_DB_USERNAME,
