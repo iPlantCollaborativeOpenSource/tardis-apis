@@ -125,8 +125,15 @@ def register_object(srv_key, obj_id, obj_name, obj_desc, parent_uuid):
     """
     obj_data = _stringify_object_data(srv_key, obj_id, obj_name, obj_desc,
                                       parent_uuid)
-    return _register_obj(srv_key, obj_id, obj_name, obj_desc, obj_data,
-                         parent_uuid)
+    data_string, webstatus =  _register_obj(srv_key, obj_id, obj_name,
+                                            obj_desc, obj_data, parent_uuid)
+    print webstatus
+    print data_string
+    if webstatus == '200 OK': # I hate that I'm doing this comparison...
+        msg = json.loads(data_string)
+        return int(msg['UUID'])
+    else: # something went horribly, horribly wrong
+        return None
 
 
 def _register_obj(srv_key, obj_id, obj_name, obj_desc, obj_data, parent_uuid):
