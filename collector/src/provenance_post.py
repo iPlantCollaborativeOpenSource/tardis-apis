@@ -16,8 +16,10 @@ JSON_BODY_MIME = 'application/json'
 
 def application(environ, start_response):
     """
-    Endpoint for a 'fire-and-forget' style provenance logging
-    interaction.
+    Endpoint for a 'fire-and-forget' style of committing provenance.
+
+    This is the desired interaction from the service engineers that will
+    be using the TARDIS APIs.
 
     This endpoint will expect the union of the information associated
     with a call to `/register` and `/provenance`.  This is, all required
@@ -30,6 +32,7 @@ def application(environ, start_response):
     """
     req = Request(environ)
     args, kwargs = environ['wsgiorg.routing_args']
+
     if (len(args) > 0):
         log_info('Positional arguments include: ' + args)
 
@@ -72,8 +75,15 @@ def _handle_post(request, routing_args):
 
     if succeeded and prov.uuid is not None:
         webstatus = '200 OK'
+        json_data = json.dumps({'result': {'Status': 'Success',
+                                'Details': 'Provenance recorded' }},
+                                indent=4)
     else:
         webstatus = '418 I am a teapot'
+        if json_data is None:
+            json_data = json.dumps({'result': {'Status': 'Failed',
+                                'Details': 'Something went horribly wrong' }},
+                                indent=4)
 
     return json_data, webstatus
 
