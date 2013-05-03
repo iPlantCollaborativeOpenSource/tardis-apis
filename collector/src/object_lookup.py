@@ -52,8 +52,22 @@ def application(environ, start_response):
     """
     req = Request(environ)
     srv_key = req.params.get('service_key')
-    objid = req.params.get('object_id')
+    obj_id = req.params.get('object_id')
 
+    data_string, webstatus = _handle_get(srv_key, obj_id)
+
+    response_headers = [('Content-type', 'application/json')]
+    start_response(webstatus, response_headers)
+    return (data_string)
+
+
+def _handle_get(srv_key, obj_id):
+    """
+    Handle the object lookup for the request.
+
+    Returns a response string and HTTP status code as a tuple in the
+    form: ``(data_string, webstatus)``.
+    """
     try:
         conn = MySQLdb.connect(host=PROV_DB_HOST, user=PROV_DB_USERNAME,
                                passwd=PROV_DB_PASSWORD, db=PROV_DB_NAME,
@@ -64,7 +78,7 @@ def application(environ, start_response):
         key_to_id = cursor.fetchone()
         srv_id, = key_to_id
 
-        cursor.execute(OBJECT_QUERY_UUID_LOOKUP % (objid, srv_id))
+        cursor.execute(OBJECT_QUERY_UUID_LOOKUP % (obj_id, srv_id))
         results = cursor.fetchall()
 
         if len(results) == 1:
@@ -83,16 +97,15 @@ def application(environ, start_response):
                                 indent=4)
             webstatus = '404 Not Found'
         else:
-            err_msg = "Object UUID is null: " + objid
+            err_msg = "Object UUID is null: " + obj_id
             logging.error(err_msg)
             data_string = json.dumps({'Status': 'Failed',
                                 'Details': 'Object does not exist'},
                                 indent=4)
             webstatus = '404 Not Found'
-
         cursor.close()
     except Exception, exc:
-        err_msg = "MySQL DB Exception: " + " " + str(exc) + " " + objid
+        err_msg = "MySQL DB Exception: " + " " + str(exc) + " " + obj_id
         logging.debug(err_msg)
 
         data_string = json.dumps({'Status': 'Failed',
@@ -100,7 +113,4 @@ def application(environ, start_response):
                               ' has been reported'}, indent=4)
         webstatus = '500 Internal Server Error'
 
-    response_headers = [('Content-type', 'application/json')]
-    start_response(webstatus, response_headers)
-    return (data_string)
-
+    return (data_string, webstatus)
