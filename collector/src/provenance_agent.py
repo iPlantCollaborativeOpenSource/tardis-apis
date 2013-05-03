@@ -137,23 +137,53 @@ def _handle_post(req, req_args):
     info_msg = "Received provenance request: " + all_data
     log_info(info_msg)
 
+    return _add_valid_tuple(req_tuple)
+
+
+def _add_valid_tuple(req_tuple):
+    """
+    If we've got a valid request tuple, we add it - like a boss.
+
+    This was factored out of _handle_post() so that a public method,
+    ``commit_provenance()`` could reuse it.
+    """
     validated, details = validate(req_tuple)
 
     info_msg = "Validation:" + str(validated) + " Details: " + str(details)
     log_info(info_msg)
 
     if validated:
-        json_data, webstatus = process_valid_request(req_tuple)
+        json_data, webstatus = _process_valid_request(req_tuple)
     else:
         json_data = json.dumps({'result': {'Status': 'Failed',
                                'Details': 'Validation Failed',
                                'Report': details}}, indent=4)
         webstatus = '400 Bad Request'
-
     return (json_data, webstatus)
 
 
-def process_valid_request(req_tuple):
+def commit_provenance(req_tuple):
+    """
+    Inserts provenance.
+
+    We could say that this method "logs provenance" but that would
+    confuse the matter what _provenance_ is not the same as "logging".
+
+    This method is committing some historical information regarding the
+    actions or operations processed on an object that has been
+    registered in the ``Objects`` table.
+
+    Note: this was extracted as a method so that it could be called
+    from another WSGI endpoint application that is performing a
+    similar, but not 100 percent identifical operation.
+    """
+    json_data, webstatus = _add_valid_tuple(req_tuple)
+    log_info(webstatus + ' ' + json_data)
+    # if we've got an ``OK`` then we can assume that it was inserted
+    return webstatus == '200 OK' # again, I hate to do this comparison
+
+
+def _process_valid_request(req_tuple):
 
     if req_tuple.version == None:
         req_tuple.version = "Default"
@@ -469,6 +499,6 @@ def validate(req_tuple):
           re.match(VER_FIELD, req_tuple.version) is None):
         details = "version value is not in the correct format"
         return (False, details)
-    else:  # the tuple survived the validation gauntlet, give them free passage!
+    else: # the tuple survived the validation gauntlet, give them free passage!
         details = "Validation Passed"
         return (True, details)
