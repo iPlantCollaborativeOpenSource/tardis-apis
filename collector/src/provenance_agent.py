@@ -476,7 +476,11 @@ def validate(req_tuple):
 
     # We failed fast & we know we have values to validate...
     # NOW ROCK THE VALIDATION \m/
-    if re.match(UUID_FIELD, req_tuple.uuid) is None:
+    if re.match(UUID_FIELD, str(req_tuple.uuid)) is None:
+        # ugh... we're checking the format of the UUID, but it's a snowflake
+        # UUID (or intended to be) so it's an integer, it's not really a normal
+        # "UUID", it contains no alphabet values like your might have seen in
+        # UUID packages in Java/etc.
         details = "uuid value is not in the correct format"
         return (False, details)
     elif re.match(STR_FIELD, req_tuple.service_name) is None:
