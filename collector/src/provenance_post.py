@@ -3,19 +3,11 @@ Handles HTTP POSTs with form-encoded or JSON data bodies...
 """
 
 import json
-import MySQLdb
 from webob import Request
 
-from db_queries import (AUDIT_ALL, AUDIT_DATA, AUDIT_PROXY, AUDIT_NO_PROXY_DATA,
-                        HIST_INSERT_QUERY_PARENT, HIST_INSERT_QUERY,
-                        HIST_SELECT_QUERY, QUERY_ALL, QUERY_CATEGORY_ID,
-                        QUERY_CHECK_UUID, QUERY_DATA, QUERY_EVENT_ID,
-                        QUERY_NO_PROXY_DATA, QUERY_PROXY, QUERY_SERVICE_ID,
-                        QUERY_SERVICE_VERSION_ID)
-from configs import (PROV_DB_HOST, PROV_DB_USERNAME, PROV_DB_PASSWORD,
-                     PROV_DB_NAME, PROV_DB_PORT)
 from prov_logging import log_errors, log_exception, log_info
-from provenance_agent import validate, ProvTuple
+from provenance_agent import commit_provenance, validate, ProvTuple
+from object_reg_lookup import register_object
 from script_tracking import (failed_inserts_audit, get_history_code,
                              track_history_errors)
 
@@ -62,14 +54,26 @@ def _handle_post(request, routing_args):
     Private method for processing an HTTP POST to the WSGI endpoint
     encapsulated in this file.
     """
+    # we're not using the service parameters from the URL in routing_args
+    log_info(routing_args)
+    # the is the possibility that values for [service_name, category_name,
+    # event_name] could conflict with the values contained in the body.
+
     # let's grab the POST body, if it's there...
     prov, json_data, webstatus = _get_post_body(request)
 
     if prov.uuid is None:
         # we look for object_* and insert, fetch uuid
-
-        print 'this is a compound insert: both into Object & Prov tables...'
+        prov.uuid = register_object(prov.service_key, prov.object_id,
+                                    prov.object_name, prov.object_desc,
+                                    prov.parent_uuid)
     # then log provenance
+    succeeded = commit_provenance(prov)
+
+    if succeeded and prov.uuid is not None:
+        webstatus = '200 OK'
+    else:
+        webstatus = '418 I am a teapot'
 
     return json_data, webstatus
 
@@ -120,7 +124,8 @@ def _create_tuple(body, request_ip):
         else:
             prov = ProvTuple(None, body['service_name'], body['category_name'],
                             body['event_name'], body['username'], request_ip)
-            prov.service_object_id = body['service_object_id']
+            prov.service_key = body['service_key']
+            prov.object_id = body['object_id']
             prov.object_name = body['object_name']
             prov.object_desc = body['object_desc']
             prov.parent_uuid = body.get('parent_uuid') # optional...
