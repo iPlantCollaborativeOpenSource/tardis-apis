@@ -4,14 +4,14 @@ USE `provenance`;
 -- ----------------------------------------------------------------------------
 -- Insert a mythical service for testing (unit, integration, functional)
 -- ----------------------------------------------------------------------------
-INSERT INTO Service (service_name, service_desc, service_link,
+INSERT INTO Service (service_key, service_name, service_desc, service_link,
     service_ipaddress, service_group, service_type, service_version)
-    VALUES ('Kahn-Data-Commons', 'A test applicaion',
+    VALUES ('KAHN-Test', 'Kahn-Data-Commons', 'A test applicaion',
         'http://data.iplantcollaborative.org/test', '127.0.0.1',
         'Data Commons - TEST', 'TEST', 0.0);
-INSERT INTO Service (service_name, service_desc, service_link,
+INSERT INTO Service (service_key, service_name, service_desc, service_link,
     service_ipaddress, service_group, service_type, service_version)
-    VALUES ('Kahn-Data-Commons', 'A test applicaion - DEV',
+    VALUES ('KAHN-Dev', 'Kahn-Data-Commons', 'A test applicaion - DEV',
         'http://data.iplantcollaborative.org/test', '127.0.0.1',
         'Data Commons', 'DEV', 0.1);
 
