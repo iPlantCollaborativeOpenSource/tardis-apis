@@ -22,8 +22,8 @@ Call returns UUID if the object is found else, returns 404.
 
 ### Parameters
 
-_service_key_ -- required (schema reference: defined in the ``Service`` )
-_object_id_   -- required
+* _service_key_ -- required (schema reference: defined in the ``Service`` )
+* _object_id_   -- required
 
 #### Usage
 
@@ -77,11 +77,11 @@ is an identifier defined within the domain of the calling application.  To ensur
 
 ### Parameters
 
-_service_key_ -- required
-_object_id_ -- required
-_object_name_ -- required
-_object_desc_ -- required
-_parent_uuid_ -- optional
+* _service_key_ -- required
+* _object_id_ -- required
+* _object_name_ -- required
+* _object_desc_ -- required
+* _parent_uuid_ -- optional
 
 ##### Usage
 
