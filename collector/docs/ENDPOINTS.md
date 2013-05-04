@@ -32,13 +32,13 @@ _object_id_   -- required
 Using Python:
 
 <code>
->>> import requests
->>> query = {'service_key': 'KAHN-Test', 'object_id': 'TT:6556-8'}
->>> r = request.get("http://tardis-dev:8000/1.4a/lookup/", params=query)
->>> r = requests.get("http://tardis-dev:8000/1.4a/lookup/", params=query)
->>> r.text
+&gt;&gt;&gt; import requests
+&gt;&gt;&gt; query = {'service_key': 'KAHN-Test', 'object_id': 'TT:6556-8'}
+&gt;&gt;&gt; r = request.get("http://tardis-dev:8000/1.4a/lookup/", params=query)
+&gt;&gt;&gt; r = requests.get("http://tardis-dev:8000/1.4a/lookup/", params=query)
+&gt;&gt;&gt; r.text
 u'{\n    "UUID": "330063643242663936"\n}'
->>>
+&gt;&gt;&gt;
 </code>
 Using cURL:
 
