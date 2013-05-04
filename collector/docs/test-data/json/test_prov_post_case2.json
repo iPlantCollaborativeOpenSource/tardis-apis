@@ -1,0 +1,10 @@
+{
+    "service_name": "Kahn-Data-Commons",
+    "category_name": "dc-view",
+    "event_name": "download",
+    "username": "lenards",
+    "service_key": "KAHN-Test",
+    "object_id": "TT:6770-0",
+    "object_name": "Exit Code",
+    "object_desc": "Last Day..."
+}
