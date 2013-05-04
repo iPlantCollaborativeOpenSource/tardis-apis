@@ -89,14 +89,20 @@ _parent_uuid_ -- optional
 
 Using Python:
 
->>> r = requests.post("http://tardis-dev:8000/1.4a/register/KAHN-Test/TT66678/example/description/")
->>> r.text
-u'{\n    "UUID": "330480398003867648"\n}'
->>> r.status_code
+<pre>
+&gt;&gt;&gt; r = requests.post("http://tardis-dev:8000/1.4a/register/KAHN-Test/TT66678
+/example/description/")
+&gt;&gt;&gt; r.text
+u'{\n    "UU
+ID": "330480398003867648"\n}'
+&gt;&gt;&gt; r.status_code
 200
->>> r.json()
-{u'UUID': u'330480398003867648'}
->>>
+
+&gt;&gt;&gt; r.json()
+{u'UUID': u'
+330480398003867648'}
+&gt;&gt;&gt;
+</pre>
 
 Using cURL:
 
@@ -158,24 +164,33 @@ The 'Content-Type' header must be set to either:
 
 Conversational - using python:
 
->>> r = requests.post("http://tardis-dev:8000/1.4a/register/KAHN-Test/TT66678/example/description/")
->>> r.text
-u'{\n    "UUID": "330480398003867648"\n}'
->>> r.status_code
+<pre>
+&gt;&gt;&gt; r = requests.post("http://tardis-dev:8000/1.4a/register/KAHN-Test/TT66678
+/example/description/")
+&gt;&gt;&gt; r.text
+u'{\n    "UU
+ID": "330480398003867648"\n}'
+&gt;&gt;&gt; r.status_code
 200
->>> r.json()
-{u'UUID': u'330480398003867648'}
->>> my_uuid = r.json()['UUID']
->>> my_uuid
-u'330480398003867648'
->>> endpoint = "http://tardis-dev:8000/1.4a/provenance/%s/%s/%s/%s/%s" % (my_uuid,
-...                     'lenards', 'Kahn-Data-Commons', 'download', 'dc-view')
->>> r = requests.post(endpoint)
->>> r.status_code
+&gt;&gt;&gt; r.json()
+{u'UUID': u'
+330480398003867648'}
+&gt;&gt;&gt;
+ my_uuid = r.json()['UUID']
+&gt;&gt;&gt; my_uuid
+u'3304803980
+03867648'
+&gt;&gt;&gt; endpoint = "http://tardis-dev:8000/1.4a/provenance/%s/%s/%s/%s/%s" % (my_uuid,
+...         'lenards', 'Kahn-Data-Commons', 'download', 'dc-view')
+&gt;&gt;&gt;
+ r = requests.post(endpoint)
+&gt;&gt;&gt; r.status_code
 200
->>> r.text
-u'{\n    "result": {\n        "Status": "Success", \n        "Details": "Provenance recorded"\n    }\n}'
->>>
+&gt;&gt;&gt; r.text
+u'{\n    "result": {\n        "Status": "Success", \n        "Details": "Provenance recorded"\n
+   }\n}'
+&gt;&gt;&gt;
+</pre>
 
 Conversational - using cURL:
 
