@@ -31,7 +31,7 @@ _object_id_   -- required
 
 Using Python:
 
-<code>
+<pre>
 &gt;&gt;&gt; import requests
 &gt;&gt;&gt; query = {'service_key': 'KAHN-Test', 'object_id': 'TT:6556-8'}
 &gt;&gt;&gt; r = request.get("http://tardis-dev:8000/1.4a/lookup/", params=query)
@@ -39,7 +39,8 @@ Using Python:
 &gt;&gt;&gt; r.text
 u'{\n    "UUID": "330063643242663936"\n}'
 &gt;&gt;&gt;
-</code>
+</pre>
+
 Using cURL:
 
 >
