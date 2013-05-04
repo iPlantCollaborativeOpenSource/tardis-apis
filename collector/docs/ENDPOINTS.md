@@ -43,24 +43,28 @@ u'{\n    "UUID": "330063643242663936"\n}'
 
 Using cURL:
 
->
-> $ curl -X GET "http://tardis-dev:8000/1.4a/lookup?service_key=KAHN-Test&object_id=TT%A6556-8"
-> {
->    "UUID": "330063643242663936"
-> }
->
+<pre>
+$ curl -X GET "http://tardis-dev:8000/1.4a/lookup?service_key=KAHN-Test&amp;object_id=TT%A6556-8"
+{
+    "UUID": "330063643242663936"
+}
+</pre>
 
 ###### looking up an object that doesn't exist...
 
-> $ curl -X GET "http://tardis-dev:8000/1.4a/lookup?service_key=KAHN-Test&object_id=TT6556-8"
-> {
->    "Status": "Failed",
->    "Details": "Object does not exist"
-> }
+<pre>
+$ curl -X GET "http://tardis-dev:8000/1.4a/lookup?service_key=KAHN-Test&amp;object_id=TT6556-8"
+{
+    "Status": "Failed",
+    "Details": "Object does not exist"
+}
+</pre>
 
 ###### not providing the required parameters...
 
->$ curl -v -X GET "http://tardis-dev:8000/1.4a/lookup?service_key=KAHN-Test"
+<pre>
+$ curl -v -X GET "http://tardis-dev:8000/1.4a/lookup?service_key=KAHN-Test"
+</pre>
 
 This currently responds with an  HTTP 500 Internal Server Error
 
@@ -106,9 +110,11 @@ ID": "330480398003867648"\n}'
 
 Using cURL:
 
-> $ curl -X POST "http://tardis-dev:8000/1.4a/register/KAHN-Test/TT66678/example/description/"
->
-> {"UUID": "330480398003867648"}
+<pre>
+ $ curl -X POST "http://tardis-dev:8000/1.4a/register/KAHN-Test/TT66678/example/description/"
+
+ {"UUID": "330480398003867648"}
+</pre>
 
 Note - that's the same UUID because when a calling application retries to re-register an object, they will be given the previously associated UUID for the { `service_key`, `object_id` } unique combination (eerrr.. composite key).
 
@@ -194,36 +200,41 @@ u'{\n    "result": {\n        "Status": "Success", \n        "Details": "Provena
 
 Conversational - using cURL:
 
->  $ curl -X POST "http://tardis-dev:8000/1.4a/provenance/3-Data-Commons/download/dc-view"
->{
->    "result": {
->        "Status": "Success",
->        "Details": "Provenance recorded"
->    }
->}
-
+<pre>
+$ curl -X POST "http://tardis-dev:8000/1.4a/provenance/3-Data-Commons/download/dc-view"
+{
+    "result": {
+        "Status": "Success",
+        "Details": "Provenance recorded"
+    }
+}
+</pre>
 
 One action - using cURL:
 
->$ curl -H "Content-Type: application/json" -X POST -d @test_prov_post_case1.json "http://tardis-dev:8000/1.4a/provenance/Kahn-Data-Commons/root-list/dc-view/"
->{
->    "result": {
->        "Status": "Success",
->        "Details": "Provenance recorded"
->    }
->}
+<pre>
+$ curl -H "Content-Type: application/json" -X POST -d @test_prov_post_case1.json "http://tardis-dev:8000/1.4a/provenance/Kahn-Data-Commons/root-list/dc-view/"
+{
+    "result": {
+        "Status": "Success",
+        "Details": "Provenance recorded"
+    }
+}
+</pre>
 
 This will accept provenance with a POST body.
 
 You can find the data in ``test_prov_post_case1.json`` in the [test-data](https://github.com/iPlantCollaborativeOpenSource/tardis-apis/blob/master/collector/docs/test-data/json/test_prov_post_case1.json) directory.
 
->$ curl  -H "Content-Type: application/json" -X POST -d @test_prov_post_case2.json "http://tardis-dev:8000/1.4a/provenance/Kahn-Data-Commons/download/dc-view/"
->{
->    "result": {
->        "Status": "Success",
->        "Details": "Provenance recorded"
->    }
->}
+<pre>
+$ curl  -H "Content-Type: application/json" -X POST -d @test_prov_post_case2.json "http://tardis-dev:8000/1.4a/provenance/Kahn-Data-Commons/download/dc-view/"
+{
+    "result": {
+        "Status": "Success",
+        "Details": "Provenance recorded"
+    }
+}
+</pre>
 
 This will accept provenance with a POST body - BUT! It is a "one-action" committing of provenence.  See, in the example JSON file, there is no UUID.  But there is enough information for registering an object.  So doing a POST with this will cause the API to register the object, thus relating it to a UUID, then used that UUID to commit provenance on behalf of the calling application for the ``event`` and ``category`` indicated.
 
