@@ -8,5 +8,6 @@ pylint==0.26.0
 python-snowflakeclient==1.0.2
 resolver==0.2.1
 selector==0.9.4
+threepio==0.1.2
 thrift==0.9.0
 wsgiref==0.1.2
