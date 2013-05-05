@@ -45,6 +45,9 @@ application = Selector()
 application.add('/hello/{name}', GET=say_hello)
 application.add(ENDPT_PREFIX + '/hello/{name}', GET=say_hello)
 
+# include for configuration verification
+application.add(ENDPT_PREFIX + '/summary', GET=summary)
+
 # Change to include a version number as a prefix
 application.add(ENDPT_PREFIX + '/lookup[/]', GET=lookup)
 application.add(ENDPT_PREFIX +
