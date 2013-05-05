@@ -15,10 +15,12 @@ CONFIG_PATH = '/scripts'
 sys.path.append(CONFIG_PATH)
 
 from configs import ENDPT_PREFIX
+from deploy_summary import application as summary
 from object_lookup import application as lookup
+from object_reg_lookup import application as register
 from provenance_agent import application as provenance
 from provenance_post import application as prov_post
-from object_reg_lookup import application as register
+
 
 # Okay code maintainer - I just want to save you some hassle... mod_wsgi
 # is looking for a function or a variable named ``application``. So,
