@@ -39,6 +39,7 @@ def application(environ, start_response):
     try:
         _log_summary()
         webstatus = '200 OK'
+        # response string set by default...
     except Exception as exc:
         c3po.exception(exc)
         webstatus = '500 Internal Server Error'
