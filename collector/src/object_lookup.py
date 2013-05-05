@@ -1,10 +1,12 @@
 #!/usr/bin/python26
 
-import sys
-import MySQLdb
-from webob import Request
-import logging
 import json
+import logging
+import MySQLdb
+import sys
+import threepio
+
+from webob import Request
 
 CONFIG_PATH = '/scripts'
 
@@ -14,11 +16,17 @@ from db_queries import (OBJECT_QUERY_UUID_LOOKUP, SERVICE_ID_FROM_KEY_QUERY)
 from configs import (PROV_DB_HOST, PROV_DB_USERNAME, PROV_DB_PASSWORD,
                     PROV_DB_NAME, PROV_DB_PORT, OBJECT_LOOKUP_LOGFILE)
 
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s %(levelname)-8s %(message)s',
-                    datefmt='%a %Y-%m-%d %H:%M:%S',
-                    filename=OBJECT_LOOKUP_LOGFILE)
+threepio.initialize(log_filename=OBJECT_LOOKUP_LOGFILE,
+                    logger_name="Object-Lookup",
+                    app_logging_level=logging.DEBUG,
+                    dep_logging_level=logging.WARN)
 
+from threepio import logger as c3po
+
+SRV_KEY = 'service_key'
+OBJ_ID = 'object_id'
+
+REQUIRED_ARGS = [SRV_KEY, OBJ_ID]
 
 def application(environ, start_response):
     """
@@ -54,7 +62,10 @@ def application(environ, start_response):
     srv_key = req.params.get('service_key')
     obj_id = req.params.get('object_id')
 
-    data_string, webstatus = _handle_get(srv_key, obj_id)
+    if srv_key is not None and obj_id is not None:
+        data_string, webstatus = _handle_get(srv_key, obj_id)
+    else:
+        data_string, webstatus = _handle_bad_request(req)
 
     response_headers = [('Content-Type', 'application/json'),
                         ('Content-Length', len(data_string))]
@@ -78,6 +89,7 @@ def _handle_get(srv_key, obj_id):
         cursor.execute(SERVICE_ID_FROM_KEY_QUERY % (srv_key))
         key_to_id = cursor.fetchone()
         srv_id, = key_to_id
+        c3po.info('result from `service-id` query' + key_to_id)
 
         cursor.execute(OBJECT_QUERY_UUID_LOOKUP % (obj_id, srv_id))
         results = cursor.fetchall()
@@ -85,12 +97,12 @@ def _handle_get(srv_key, obj_id):
         if len(results) == 1:
             uid = str(results[0][0])
             info_msg = "Lookup Object Exists:" + " " + uid
-            logging.info(info_msg)
+            c3po.info(info_msg)
             data_string = json.dumps({'UUID': uid}, indent=4)
             webstatus = '200 OK'
         elif len(results) > 1 :
             errmsg = ("More than one object was found: " + str(results))
-            logging.error(errmsg)
+            c3po.warn(errmsg)
             data_string = json.dumps({'Status': 'Exception',
                                 'Details': 'Multiple objects found ' +
                                 'with the same `object_id` for the same ' +
@@ -105,13 +117,33 @@ def _handle_get(srv_key, obj_id):
                                 indent=4)
             webstatus = '404 Not Found'
         cursor.close()
-    except Exception, exc:
+    except Exception as exc:
         err_msg = "MySQL DB Exception: " + " " + str(exc) + " " + obj_id
-        logging.debug(err_msg)
-
+        c3po.warn(err_msg)
+        c3po.exception(exc)
         data_string = json.dumps({'Status': 'Failed',
                               'Details': 'MySQL Exception. Incident' +
                               ' has been reported'}, indent=4)
         webstatus = '500 Internal Server Error'
+
+    return (data_string, webstatus)
+
+
+def _handle_bad_request(request):
+    """
+    Provide some feedback on what horrible things has happened.
+    """
+    webstatus = '400 Bad Request'
+    details = ''
+    if request.params.get(SRV_KEY) is None:
+        details += 'Expect ``service_key`` as a query string argument ' + \
+                    '- and it is missing. '
+    if request.params.get(OBJ_ID) is None:
+        details += 'Expect ``object_id`` as a query string argument ' + \
+                    '- and it is missing. '
+
+    data_string = json.dumps({'Status': 'Failed',
+                          'Details': 'Request missing required arguments. ' +
+                            details }, indent=4)
 
     return (data_string, webstatus)
