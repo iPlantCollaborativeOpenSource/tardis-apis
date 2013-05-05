@@ -47,7 +47,7 @@ def application(environ, start_response):
         str(json_data)
     log_info(info_msg)
 
-    response_headers = [('Content-type', 'application/json')]
+    response_headers = [('Content-Type', 'application/json')]
     start_response(webstatus, response_headers)
     return (json_data)
 
