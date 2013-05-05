@@ -56,7 +56,8 @@ def application(environ, start_response):
 
     data_string, webstatus = _handle_get(srv_key, obj_id)
 
-    response_headers = [('Content-type', 'application/json')]
+    response_headers = [('Content-Type', 'application/json'),
+                        ('Content-Length', len(data_string))]
     start_response(webstatus, response_headers)
     return (data_string)
 

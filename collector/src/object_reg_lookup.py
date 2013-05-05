@@ -72,7 +72,8 @@ def application(environ, start_response):
                                  'Incorrect HTTP METHOD'}, indent=4)
         webstatus = '405 Method Not Allowed'
 
-    response_headers = [('Content-type', 'application/json')]
+    response_headers = [('Content-Type', 'application/json'),
+                        ('Content-Length', len(data_string))]
     start_response(webstatus, response_headers)
     return (data_string)
 
