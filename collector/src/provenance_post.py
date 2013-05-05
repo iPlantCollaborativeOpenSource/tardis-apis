@@ -5,11 +5,9 @@ Handles HTTP POSTs with form-encoded or JSON data bodies...
 import json
 from webob import Request
 
-from prov_logging import log_errors, log_exception, log_info
-from provenance_agent import commit_provenance, validate, ProvTuple
+from prov_logging import log_info
+from provenance_agent import commit_provenance, ProvTuple
 from object_reg_lookup import register_object
-from script_tracking import (failed_inserts_audit, get_history_code,
-                             track_history_errors)
 
 FORM_ENCODED_MIME = 'application/x-www-form-urlencoded'
 JSON_BODY_MIME = 'application/json'
