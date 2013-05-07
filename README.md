@@ -11,7 +11,7 @@ TARDIS Analyzer API is used for retrieving and reporting that provenance for ser
 
 Each API is versioned independently. Currently the versions for each API are listed below: 
 
-* Collector API, version 1.2 (shortened to C.1.2)
+* Collector API, version 1.4-ALPHA (shortened to C.1.4a, or v1.4a)
 
 * Analyzer API, version 1.0-ALPHA (shortened to A.1.0a)
 
